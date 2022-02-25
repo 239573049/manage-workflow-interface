@@ -6,7 +6,7 @@ const { Header, Content, Footer } = Layout;
 class Login extends React.Component {
     render() {
         return (
-            <div>
+            <div style={}>
                 <Layout>
                     <Header>
                         1
