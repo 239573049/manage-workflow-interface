@@ -1,31 +1,91 @@
-import React from 'react'
-import { Layout,Row,Col} from 'antd';
+import { Form, Input, Button, Checkbox, Layout, Row, Col } from 'antd';
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import {LoginVM} from '../../model/login/login'
+import LoginApi from '../../apis/login/index'
+import './index.less'
+import {encryptByDES} from '../../utils/des/des'
+const { Footer,  Content } = Layout;
+const NormalLoginForm = () => {
+    const onFinish = (values: LoginVM) => {
+        values.password=encryptByDES(values.password!)
+        LoginApi.Login(values)
+            .then((res)=>{
+                console.log(res);
+            })
+    };
+    return (
 
-const { Header, Content, Footer } = Layout;
+        <Layout>
+            <Content>
+                <Row>
+                    <Col xs={2} sm={4} md={6} lg={8} xl={10}>
 
-class Login extends React.Component {
-    render() {
-        return (
-            <div style={}>
-                <Layout>
-                    <Header>
-                        1
-                    </Header>
-                    <Content>
-                        
-                        <Row>
-                        <Col span={12} offset={6}>
-                            col-12 col-offset-6
-                        </Col>
-                        </Row>
-                    </Content>
-                    <Footer>
-                        
-                    </Footer>
-                </Layout>
-            </div>
-        )
-    }
-}
+                    </Col>
+                    <Col xs={20} sm={16} md={12} lg={8} xl={4}>
 
-export default Login;
+                        <div className='Login ContentLogin'>
+                            <div className='Title'>Token管理系统</div>
+                            <Form
+                                name="normal_login"
+                                className="login-form"
+                                initialValues={{
+                                    remember: true,
+                                }}
+                                onFinish={onFinish}
+                            >
+                                <Form.Item
+                                    name="accountNumber"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: '请输入您的账号',
+                                        },
+                                    ]}
+                                >
+                                    <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username" />
+                                </Form.Item>
+                                <Form.Item
+                                    name="password"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: '请输入您的密码',
+                                        },
+                                    ]}
+                                >
+                                    <Input
+                                        prefix={<LockOutlined className="site-form-item-icon" />}
+                                        type="password"
+                                        placeholder="Password"
+                                    />
+                                </Form.Item>
+                                <Form.Item>
+                                    <Form.Item name="remember" valuePropName="checked" noStyle>
+                                        <Checkbox>记住密码</Checkbox>
+                                    </Form.Item>
+                                    <a className="login-form-forgot" href="">
+                                        忘记密码
+                                    </a>
+                                </Form.Item>
+
+                                <Form.Item>
+                                    <Button type="primary" htmlType="submit" className="login-form-button">
+                                        登录
+                                    </Button>
+                                </Form.Item>
+                            </Form>
+                        </div>
+                    </Col>
+                    <Col xs={2} sm={4} md={6} lg={8} xl={10}>
+
+                    </Col>
+                </Row>
+            </Content>
+            <Footer>
+
+            </Footer>
+        </Layout>
+    );
+};
+
+export default NormalLoginForm
