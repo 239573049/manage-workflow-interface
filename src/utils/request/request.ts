@@ -1,5 +1,6 @@
 import instance from './instance';
-import { AxiosRequest, CustomResponse } from './types';
+import { AxiosRequest,AxiosResponse } from './types';
+import {Response} from '../../model/request/Api'
 const header = {
   'Content-Type': 'application/json;charset=UTF-8',
 };
@@ -12,7 +13,7 @@ class Abstract {
     url,
     data,
     params,
-  }: AxiosRequest): Promise<CustomResponse> {
+  }: AxiosRequest): Promise<AxiosResponse> {
     return new Promise((resolve, reject) => {
       instance({
         baseURL,
@@ -25,22 +26,16 @@ class Abstract {
         .then((res) => {
           if (res.status === 200) {
             if (res.data.success) {
-              resolve({ status: true, message: 'success', data: res.data?.data, origin: res.data });
+              resolve(res.data);
             } else {
-              resolve({
-                status: false,
-                message: res.data?.message,
-                data: res.data?.data,
-                origin: res.data,
-              });
+              resolve(res.data);
             }
           } else {
-            resolve({ status: false, message: res.data?.message, data: null });
+            resolve(res.data);
           }
         })
         .catch((err) => {
           const message = err?.data?.message || err?.message;
-
           reject({ status: false, message, data: null });
         });
     });

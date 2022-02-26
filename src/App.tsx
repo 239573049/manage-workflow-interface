@@ -1,10 +1,16 @@
 import React from 'react';
 import './App.css';
-import Login from './pages/login/index'
+import GetRoutes from './routes/index'
+import {
+  BrowserRouter
+} from 'react-router-dom';
 function App() {
   return (
-    <Login/>
-    
+    <div className='App'>
+        <BrowserRouter>
+        <GetRoutes />
+      </BrowserRouter>
+    </div>
   );
 }
 

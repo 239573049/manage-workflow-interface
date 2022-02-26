@@ -15,12 +15,9 @@ export interface AxiosRequest {
 }
 
 export interface AxiosResponse {
-  data: any;
-  headers: any;
-  request?: any;
-  status: number;
-  statusText: string;
-  config: AxiosRequest;
+  <T>(data: T): T;
+  statusCode:number;
+  message:string;
 }
 
 export interface CustomResponse {
