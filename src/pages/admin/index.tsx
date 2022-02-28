@@ -1,30 +1,75 @@
 import React from 'react'
-import { Layout, Menu, Breadcrumb } from 'antd';
-import {
-  DesktopOutlined,
-  PieChartOutlined,
-  FileOutlined,
-  TeamOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import { Layout, Menu, Breadcrumb, Button } from 'antd';
 import './index.less'
 import AdminApi from '../../apis/admin/index'
-import { Link } from 'react-router-dom';
+import { Response } from '../../model/request/Api'
+import { LoginVM } from '../../model/login/login';
+import Work from './work';
+import Home from './home/index'
+import User from './user/index'
+import WorkConfig from './system/workConfig';
+import Error404 from '../error404';
+import RoleConfig from './system/roleConfig/index'
+import UserConfig from './system/userConfig/index';
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
-class Admin extends React.Component {
 
+class Admin extends React.Component {
+  /**
+   * 获取当前账号权限菜单
+   */
+  getMenu() {
+    AdminApi.GetUserMenuList()
+      .then(res => {
+        var data = res.data as Response<LoginVM>
+        console.log(data.data);
+        if (data.statusCode === 200) {
+          this.setState({
+            menu: this.getMenuNodes(data.data as never)
+          })
+        }
+      })
+  }
+  componentWillMount() {
+    this.getMenu()
+  }
+  /**
+   * 获取点击菜单进行模块展示
+   * @param item 
+   */
+  menuOnClick(item: any) {
+    let components=<Error404/>
+    switch (item.component) {
+      case "User":
+        components=<User />
+        break;
+      case "Home":
+        components=<Home />
+        break;
+      case "Work":
+        components=<Work />
+        break;
+      case "WorkConfig":
+        components=<WorkConfig />
+        break;
+      case "RoleConfig":
+        components=<RoleConfig/>
+        break;
+      case "UserConfig":
+      components=<UserConfig/>  
+      break;
+    }
+    this.setState({
+      component:components
+    })
+  }
   getMenuNodes = (menuList: any[]) => {
     return menuList.map(item => {
-      // 第一种方法使用变量
-      // const icon = React.createElement(Icon[item.icon])
-      if (!item.children) {
+      if (item.children.length === 0) {
         return (
-          <Menu.Item key={item.key} icon="">
-            <Link to={item.key}>
-              <span>{item.title}</span>
-            </Link>
+          <Menu.Item key={item.key} icon="" onClick={() => { this.menuOnClick(item) }}>
+            {item.title}
           </Menu.Item>
         )
       } else {
@@ -37,25 +82,11 @@ class Admin extends React.Component {
       }
     })
   }
-
-  constructor(props: any) {
-    super(props);
-    AdminApi.GetUserMenuList()
-      .then((res) => {
-        if (res.statusCode === 200) {
-          var data = res.data as never;
-          this.setState({
-            menu: this.getMenuNodes(data)
-          })
-
-        }
-      })
-  }
   state = {
-    meno: [],
+    menu: [],
     collapsed: false,
     searchValue: "",
-
+    component: <Home />
   };
 
   onCollapse = (collapsed: any) => {
@@ -65,7 +96,7 @@ class Admin extends React.Component {
 
 
   render(): React.ReactNode {
-    const { collapsed } = this.state;
+    const { collapsed, menu, component } = this.state;
     return (
       <Layout style={{ minHeight: '100vh' }}>
         <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
@@ -74,19 +105,13 @@ class Admin extends React.Component {
             mode="inline"
             theme="dark"
           >
-            {this.state.meno}
+            {menu}
           </Menu>
         </Sider>
         <Layout className="site-layout">
           <Header className="site-layout-background" style={{ padding: 0 }} />
           <Content style={{ margin: '0 16px' }}>
-            <Breadcrumb style={{ margin: '16px 0' }}>
-              <Breadcrumb.Item>User</Breadcrumb.Item>
-              <Breadcrumb.Item>Bill</Breadcrumb.Item>
-            </Breadcrumb>
-            <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
-              Bill is a cat.
-            </div>
+            {component}
           </Content>
           <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
         </Layout>

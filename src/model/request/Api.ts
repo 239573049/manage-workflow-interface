@@ -1,5 +1,5 @@
-export interface Response {
+export interface Response<T> {
   statusCode: number | undefined;
   message: string | undefined;
-  <T>(data: T): T;
+  data: T;
 }

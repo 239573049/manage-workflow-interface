@@ -1,7 +1,8 @@
-import Abstract from '../../utils/request/request'
-class LoginApi extends Abstract{
+import instance from '../../utils/request/request';
+
+class Admin {
     GetUserMenuList(){
-        return this.get({url:'/Menu/GetUserMenuList'})
+        return instance.get('Menu/GetUserMenuList');
     }
 }
-export default new LoginApi()
+export default new Admin();

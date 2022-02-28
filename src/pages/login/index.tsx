@@ -2,6 +2,7 @@ import { Form, Input, Button, Checkbox, Layout, Row, Col } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import React from 'react'
 import {LoginVM,LoginUserInfo} from '../../model/login/login'
+import {Response} from '../../model/request/Api'
 import LoginApi from '../../apis/login/index'
 import './index.less'
 import {encryptByDES} from '../../utils/des/des'
@@ -12,10 +13,9 @@ class Login extends React.Component{
         values.password=encryptByDES(values.password!)
         LoginApi.Login(values)
             .then((res)=>{
-                console.log(res);
-                if(res.statusCode===200){
-                    var user= res.data as LoginUserInfo;
-                    window.sessionStorage.setItem("user",JSON.stringify(user))
+                var response=res.data as Response<LoginUserInfo>;
+                if(response.statusCode===200){
+                    window.sessionStorage.setItem("user",JSON.stringify(response.data))
                     window.location.href="/admin"
                 }
             })
