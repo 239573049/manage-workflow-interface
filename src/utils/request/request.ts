@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { message } from 'antd';
-import { LoginUserInfo } from '../../model/userInfo/userInfo';
 const header = {
   'Content-Type': 'application/json;charset=UTF-8',
 };
@@ -16,12 +15,10 @@ const instance = axios.create({
 // 添加请求拦截器
 instance.interceptors.request.use(
   (request) => {
-    const user = JSON.parse(window.sessionStorage.getItem('user')??"{}") as  LoginUserInfo;
-    if (user != null) {
-      request.headers = {
-        Authorization: user.token!,
-      };
-    }
+    const token = window.sessionStorage.getItem('token') ;
+    request.headers = {
+      Authorization: token!,
+    };
     return request;
   },
   (error) => {

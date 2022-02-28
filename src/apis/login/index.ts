@@ -4,5 +4,8 @@ class LoginApi {
     Login(value:LoginVM){
         return instance.post('/Login/Login',value)
     }
+    LogOut(){
+        return instance.delete('/Login/LogOut')
+    }
 }
 export default new LoginApi()

@@ -8,14 +8,14 @@ import './index.less'
 import {encryptByDES} from '../../utils/des/des'
 const { Footer,  Content } = Layout;
 class Login extends React.Component{
-
     onFinish = (values: LoginVM) => {
         values.password=encryptByDES(values.password!)
         LoginApi.Login(values)
             .then((res)=>{
                 var response=res.data as Response<LoginUserInfo>;
                 if(response.statusCode===200){
-                    window.sessionStorage.setItem("user",JSON.stringify(response.data))
+                    window.sessionStorage.setItem("token",response.data.token!)
+                    window.sessionStorage.setItem("user",JSON.stringify(response.data.userInfo))
                     window.location.href="/admin"
                 }
             })
