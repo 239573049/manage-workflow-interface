@@ -1,7 +1,7 @@
 import type { AxiosRequestConfig, Method } from 'axios';
 import axios from 'axios';
-import type { LoginUserInfo } from '../../model/login/login';
 import { message } from 'antd';
+import { LoginUserInfo } from '../../model/userInfo/userInfo';
 // 定义接口
 interface PendingType {
   url?: string;
@@ -21,7 +21,6 @@ const instance = axios.create({
 
 // 移除重复请求
 const removePending = (config: AxiosRequestConfig) => {
-  // eslint-disable-next-line @typescript-eslint/no-for-in-array
   for (const key in pending) {
     const item: number = +key;
     const list: PendingType = pending[key];
@@ -45,7 +44,9 @@ const removePending = (config: AxiosRequestConfig) => {
 // 添加请求拦截器
 instance.interceptors.request.use(
   (request) => {
-    const user = window.sessionStorage.getItem('user') as unknown as LoginUserInfo;
+    const user = JSON.parse(window.sessionStorage.getItem('user')??"") as  LoginUserInfo;
+    console.log(user);
+    
     if (user != null) {
       request.headers = {
         Authorization: user.token!,

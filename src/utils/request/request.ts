@@ -1,11 +1,10 @@
 import instance from './instance';
 import { AxiosRequest,AxiosResponse } from './types';
-import {Response} from '../../model/request/Api'
 const header = {
   'Content-Type': 'application/json;charset=UTF-8',
 };
 
-class Abstract {
+class Abstract{
   private apiAxios({
     baseURL = 'https://localhost:8088/api',
     headers = header,

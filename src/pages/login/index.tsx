@@ -3,7 +3,6 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import React from 'react'
 import {LoginVM,LoginUserInfo} from '../../model/login/login'
 import LoginApi from '../../apis/login/index'
-import {Response} from '../../model/request/Api'
 import './index.less'
 import {encryptByDES} from '../../utils/des/des'
 const { Footer,  Content } = Layout;
@@ -14,7 +13,9 @@ class Login extends React.Component{
         LoginApi.Login(values)
             .then((res)=>{
                 console.log(res);
-                if(res.statusCode==200){
+                if(res.statusCode===200){
+                    var user= res.data as LoginUserInfo;
+                    window.sessionStorage.setItem("user",JSON.stringify(user))
                     window.location.href="/admin"
                 }
             })

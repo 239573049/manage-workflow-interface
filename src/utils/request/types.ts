@@ -14,8 +14,8 @@ export interface AxiosRequest {
   responseType?: ResponseType;
 }
 
-export interface AxiosResponse {
-  <T>(data: T): T;
+export interface AxiosResponse{
+  data: any;
   statusCode:number;
   message:string;
 }
