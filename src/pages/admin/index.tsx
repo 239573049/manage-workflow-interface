@@ -1,50 +1,80 @@
 import React from 'react'
 import { Layout, Menu, Breadcrumb } from 'antd';
 import {
-    DesktopOutlined,
-    PieChartOutlined,
-    FileOutlined,
-    TeamOutlined,
-    UserOutlined,
-  } from '@ant-design/icons';
+  DesktopOutlined,
+  PieChartOutlined,
+  FileOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import './index.less'
+import AdminApi from '../../apis/admin/index'
+import { Link } from 'react-router-dom';
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
-class Admin extends React.Component{
-    state = {
-        collapsed: false,
-      };
-      
+class Admin extends React.Component {
+
+  getMenuNodes = (menuList: any[]) => {
+    return menuList.map(item => {
+      // 第一种方法使用变量
+      // const icon = React.createElement(Icon[item.icon])
+      if (!item.children) {
+        return (
+          <Menu.Item key={item.key} icon="">
+            <Link to={item.key}>
+              <span>{item.title}</span>
+            </Link>
+          </Menu.Item>
+        )
+      } else {
+        return (
+          // 第三种方法直接使用React.createElement
+          <SubMenu key={item.key} icon="" title={item.title}>
+            {this.getMenuNodes(item.children)}
+          </SubMenu>
+        )
+      }
+    })
+  }
+
+  constructor(props: any) {
+    super(props);
+    AdminApi.GetUserMenuList()
+      .then((res) => {
+        if (res.statusCode === 200) {
+          var data = res.data as never;
+          this.setState({
+            menu: this.getMenuNodes(data)
+          })
+
+        }
+      })
+  }
+  state = {
+    meno: [],
+    collapsed: false,
+    searchValue: "",
+
+  };
+
   onCollapse = (collapsed: any) => {
     console.log(collapsed);
     this.setState({ collapsed });
   };
-    render(): React.ReactNode {
-        const { collapsed } = this.state;
-        return(
-            <Layout style={{ minHeight: '100vh' }}>
+
+
+  render(): React.ReactNode {
+    const { collapsed } = this.state;
+    return (
+      <Layout style={{ minHeight: '100vh' }}>
         <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
-          <div className="logo" />
-          <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
-            <Menu.Item key="1" icon={<PieChartOutlined />}>
-              Option 1
-            </Menu.Item>
-            <Menu.Item key="2" icon={<DesktopOutlined />}>
-              Option 2
-            </Menu.Item>
-            <SubMenu key="sub1" icon={<UserOutlined />} title="User">
-              <Menu.Item key="3">Tom</Menu.Item>
-              <Menu.Item key="4">Bill</Menu.Item>
-              <Menu.Item key="5">Alex</Menu.Item>
-            </SubMenu>
-            <SubMenu key="sub2" icon={<TeamOutlined />} title="Team">
-              <Menu.Item key="6">Team 1</Menu.Item>
-              <Menu.Item key="8">Team 2</Menu.Item>
-            </SubMenu>
-            <Menu.Item key="9" icon={<FileOutlined />}>
-              Files
-            </Menu.Item>
+          <Menu
+            style={{ width: "100%" }}
+            mode="inline"
+            theme="dark"
+          >
+            {this.state.meno}
           </Menu>
         </Sider>
         <Layout className="site-layout">
@@ -61,7 +91,7 @@ class Admin extends React.Component{
           <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
         </Layout>
       </Layout>
-        )
-    }
+    )
+  }
 }
 export default Admin
