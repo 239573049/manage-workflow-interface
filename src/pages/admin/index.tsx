@@ -1,10 +1,9 @@
 import React from 'react'
-import { Layout, Menu, Image, Popover, message, Card, Avatar, Tabs } from 'antd';
+import { Layout, Menu, Popover, message, Card, Avatar, Tabs } from 'antd';
 import { UserInfo } from '../../model/userInfo/userInfo';
 import './index.less'
 import AdminApi from '../../apis/admin/index'
 import { Response } from '../../model/request/Api'
-import { LoginVM } from '../../model/login/login';
 import LoginApi from '../../apis/login/index';
 import PANE from '../menu';
 const { Header, Content, Footer, Sider } = Layout;
@@ -32,7 +31,6 @@ class Admin extends React.Component<IProps, IState> {
     activeKey: "",
     collapsed: false,
     searchValue: "",
-    
     user: new UserInfo()
   };
   onChange = (activeKey: string) => {
@@ -181,19 +179,22 @@ class Admin extends React.Component<IProps, IState> {
               </span>
             </div>
           </Header>
-          <Content style={{ margin: '0 16px' }}>
+          <Content style={{ margin: '0 16px',height:'100%'}}>
             <Tabs
               hideAdd
               onChange={this.onChange}
               activeKey={this.state.activeKey}
               type="editable-card"
               onEdit={this.onEdit}
+              style={{height:'100%'}}
             >
               {this.state.panes.map(pane => (
-                <TabPane tab={pane.title} key={pane.key}>
+                <TabPane tab={pane.title} key={pane.key} style={{height:'100%',minHeight:'720px'}}>
+                  <Card hoverable  style={{height:'100%',minHeight:'720px'}}>
                   {PANE[pane.content]}
+                  </Card>
                 </TabPane>
-              ))}
+              ))}x
             </Tabs>
           </Content>
           <Footer style={{ textAlign: 'center' }}>Token ©2022 </Footer>
