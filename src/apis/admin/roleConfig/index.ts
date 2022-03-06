@@ -14,5 +14,14 @@ class RoleConfig {
     DeleteRole(id:string){
         return instance.delete('Role/DeleteRole?id='+id)
     }
+    GetRoleUserInfo(id:string|undefined,pageNo:number|1,pageSize:number|20){
+        return instance.get('Role/GetRoleUserInfo?id='+id+'&pageNo='+pageNo+'&pageSize='+pageSize)
+    }
+    UpdateRoleIndex(role:Role[]){
+        return instance.put("Role/UpdateRoleIndex",role)
+    }
+    GetRoleUserInfoNotExit(id:string|undefined,name:string|undefined,pageNo:number|undefined,pageSize:number|undefined){
+        return instance.get(`Role/GetRoleUserInfoNotExit?id=${id}&name=${name}&pageNo=${pageNo}&pageSize=${pageSize}`)
+    }
 }
 export default new RoleConfig();

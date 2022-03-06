@@ -1,9 +1,13 @@
 import React from "react";
-import { FormOutlined,DeleteOutlined, UserOutlined } from '@ant-design/icons';
+import { FormOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
 import RoleConfigApi from '../../../../apis/admin/roleConfig/index'
 import './index.less'
 import Role from '../../../../model/role/role'
-import { Button, Input, message, Modal, Table, Tabs } from "antd";
+import { Button, Input, message, Modal, Popconfirm, Table, Tabs } from "antd";
+import Paging from '../../../../model/paging/paging'
+import { UserInfo } from "../../../../model/userInfo/userInfo";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd"
+import roleConfig from "../../../../apis/admin/roleConfig/index";
 const { TabPane } = Tabs;
 interface IState {
     data: Search,
@@ -11,6 +15,16 @@ interface IState {
     isUpdateRoleVisible: boolean,
     updateRole: Role | undefined,
     pitch: string,
+    userInfoList: Paging<UserInfo> | undefined,
+    userInfoSelection: [],
+    updateInfoModalTitle:string,
+    TabOperationData:any,
+    addRoleUserInfoSearch:{
+        id:string|undefined,
+        name:string|undefined,
+        pageNo:number|undefined,
+        pageSize:number|undefined
+    }
 }
 interface IProps {
 
@@ -18,21 +32,39 @@ interface IProps {
 class Search {
     name: string | undefined;
 }
-
-const RoleTab = [
+/***
+ * 用户表格表头
+ */
+const UserInfoTab = [
     {
-      title: 'Name',
-      dataIndex: 'name',
+        title: '序号',
+        dataIndex: 'key',
     },
     {
-      title: 'Age',
-      dataIndex: 'age',
+        title: '账号',
+        dataIndex: 'accountNumber',
     },
     {
-      title: 'Address',
-      dataIndex: 'address',
+        title: '名称',
+        dataIndex: 'name',
     },
-  ];
+    {
+        title: '性别',
+        dataIndex: 'sexName',
+    },
+    {
+        title: '账号状态',
+        dataIndex: 'statueName',
+    },
+    {
+        title: '手机号',
+        dataIndex: 'mobileNumber',
+    },
+    {
+        title: '邮箱',
+        dataIndex: 'eMail',
+    },
+];
 
 class RoleConfig extends React.Component<IProps, IState>{
     state: IState = {
@@ -40,30 +72,77 @@ class RoleConfig extends React.Component<IProps, IState>{
         role_list: [],
         isUpdateRoleVisible: false,
         updateRole: undefined,
-        pitch: ''
+        pitch: '',
+        userInfoList: undefined,
+        userInfoSelection: [],
+        updateInfoModalTitle: '',
+        TabOperationData: undefined,
+        addRoleUserInfoSearch: {
+            id: undefined,
+            name: undefined,
+            pageNo: undefined,
+            pageSize: undefined
+        }
+    }
+    /**
+     * 自定义Tab按钮
+     */
+    sort=<div><span><Button onClick={()=>{this.GetRoleUserInfoNotExit()}}>添加用户</Button></span><span> <Button onClick={()=>{this.deleteRoleUserInfo()}}>删除用户</Button></span></div>
+    deleteRoleUserInfo(){
+        var {userInfoSelection} =this.state;
+        console.log(userInfoSelection);
+        
     }
     /**
      * 渲染前
      */
     componentWillMount() {
-        this.GetUserMenuList()
+        this.GetUserMenuList(true)
+    }
+    /**
+     * 获取角色不存在的用户
+     */
+    GetRoleUserInfoNotExit(){
+        var {addRoleUserInfoSearch,pitch}=this.state;
+
+        if(pitch===''){
+            message.warning('请先选择角色')
+            return;
+        }
+        RoleConfigApi.GetRoleUserInfoNotExit(pitch,addRoleUserInfoSearch?.name??'',addRoleUserInfoSearch?.pageNo??1,addRoleUserInfoSearch?.pageSize??20)
+            .then(res=>{
+                if(res.data.statusCode===200){
+                    var data=res.data.data;
+                    console.log(data);
+                }
+
+            })
     }
     /**
      * 获取角色列表
      */
-    GetUserMenuList() {
+    GetUserMenuList(initial:boolean=false) {
         RoleConfigApi.GetUserMenuList(this.state.data.name ?? "")
             .then((res) => {
-                var role_list = this.state.role_list;
-                role_list = []
-                res.data.data.forEach((d: Role) => {
-                    role_list.push(d);
-                });
-                console.log(role_list);
-
+                if(initial&&res.data.statusCode === 200&&res.data.data.length>0){
+                    this.updateRolePitch(res.data.data[0])
+                }
                 this.setState({
-                    role_list: [...role_list]
+                    role_list: [...res.data.data]
                 })
+
+            })
+    }
+    GetRoleUserInfo(id: string | undefined, pageNo: number | 1, pageSize: number | 20) {
+        RoleConfigApi.GetRoleUserInfo(id, pageNo, pageSize)
+            .then(res => {
+                var data = res.data;
+                if (data.statusCode === 200) {
+                    var json = data.data as Paging<UserInfo>
+                    this.setState({
+                        userInfoList: json
+                    })
+                }
 
             })
     }
@@ -75,25 +154,32 @@ class RoleConfig extends React.Component<IProps, IState>{
             let role: Role = {
                 code: '', isAdd: true, name: '', remark: '',
                 id: undefined,
+                key: undefined,
                 parentId: undefined,
                 index: 0
             }
 
             this.setState({
                 updateRole: role,
+                updateInfoModalTitle:'添加角色',
                 isUpdateRoleVisible: true
             })
         } else {
             this.setState({
+                updateInfoModalTitle:'编辑角色',
                 updateRole: role,
                 isUpdateRoleVisible: true
             })
         }
     }
-    deleteRole(role:Role|undefined){
-        if(role){
+    /**
+     * 删除角色
+     * @param role 
+     */
+    deleteRole(role: Role | undefined) {
+        if (role) {
             RoleConfigApi.DeleteRole(role.id!)
-                .then(res=>{
+                .then(res => {
                     if (res.data.statusCode === 200) {
                         message.success("删除成功")
                     } else {
@@ -178,6 +264,7 @@ class RoleConfig extends React.Component<IProps, IState>{
      */
     updateRolePitch(value: Role) {
         if (value) {
+            this.GetRoleUserInfo(value.id, 1, 20)
             this.setState({
                 pitch: value.id!
             })
@@ -186,41 +273,95 @@ class RoleConfig extends React.Component<IProps, IState>{
     roleTab() {
 
     }
+    onUserInfoSelectChange = (userInfoSelection: any) => {
+        this.setState({ userInfoSelection });
+    };
+    /**
+     * 拖动逻辑处理
+     */
+    onDragEnd = (result:any) => {
+        const sourceIndex = result.source.index;
+        const destinationIndex = result.destination.index;
+        if (sourceIndex === destinationIndex) {
+          return;
+        }
+        const userList = this.state.role_list;
+        const [draggedItem] = userList.splice(sourceIndex, 1);
+        userList.splice(destinationIndex, 0, draggedItem);
+        var destination=userList[sourceIndex];
+        destination.index=sourceIndex;
+        draggedItem.index=destinationIndex;
+        //更新数据
+       roleConfig.UpdateRoleIndex([draggedItem,destination])
+        this.setState({
+          role_list: userList,
+        });
+    };
+
     render(): React.ReactNode {
-        var { role_list, isUpdateRoleVisible, updateRole, pitch } = this.state;
+        var { role_list, isUpdateRoleVisible, updateRole, pitch, userInfoSelection, userInfoList,updateInfoModalTitle } = this.state;
+        const rowSelection = {
+            userInfoSelection,
+            onChange: this.onUserInfoSelectChange,
+        };
         return (
             <div className="role-container">
                 <div className="role-list-div">
-                    <div  className="role-list-title">
+                    <div className="role-list-title">
                         <span>角色架构 </span>
                         <Button style={{ width: '70px' }} onClick={() => { this.updateRole(undefined, true) }}>添加</Button>
                     </div><br />
-                    {
-                        role_list.map(a => (
-                            <div className={pitch === a.id ? "role-list-div-list-pitch" : "role-list-div-list-notpitch"} onClick={() => { this.updateRolePitch(a) }}>
-                                <span className="role-list-div-list role-list-div-role-title">
-                                    <UserOutlined />
-                                    {a.name}
-                                </span>
-                                <span className="role-list-div-role-edit">
-                                    <DeleteOutlined onClick={()=>{this.deleteRole(a)}}/>
-                                </span>
-                                <span className="role-list-div-role-edit">
-                                    <FormOutlined onClick={() => { this.updateRole(a, false) }} />
-                                </span>
-                            </div>
-                        ))
-                    }
+                    <DragDropContext onDragEnd={this.onDragEnd}>
+                        <div className="myModal">
+                            <Droppable droppableId="mymodal" direction="horizontal">
+                                {(provided) => (
+                                    <div
+                                        className="modalList"
+                                        ref={provided.innerRef}
+                                        {...provided.droppableProps}>
+                                        {role_list.map((item, index) => (
+                                            <Draggable draggableId={item.id!} index={index} key={item.key}>
+                                                {(provided) => (
+                                                    <div
+                                                        className="modal"
+                                                        key={item.name}
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}>
+                                                        <div key={item.key} className={pitch === item.id ? "role-list-div-list-pitch" : "role-list-div-list-notpitch"} onClick={() => { this.updateRolePitch(item) }}>
+                                                            <span className="role-list-div-list role-list-div-role-title">
+                                                                <UserOutlined />
+                                                                {item.name}
+                                                            </span>
+                                                            <span className="role-list-div-role-edit">
+                                                                <Popconfirm title="确定删除这个角色吗？" okText="确定" cancelText="取消" onConfirm={() => { this.deleteRole(item) }}>
+                                                                    <DeleteOutlined />
+                                                                </Popconfirm>
+                                                            </span>
+                                                            <span className="role-list-div-role-edit">
+                                                                <FormOutlined onClick={() => { this.updateRole(item, false) }} />
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        ))}
+                                        {provided.placeholder}
+                                    </div>
+                                )}
+                            </Droppable>
+                        </div>
+                    </DragDropContext>
                 </div>
                 <div className="role-list-data role-tab-div">
-                    <Tabs defaultActiveKey="1" onChange={() => { this.roleTab() }} className="role-tab-div" >
-                        <TabPane tab="用户角色" key="1" className="role-tab-div">
-                        {/* <Table rowSelection={rowSelection} columns={columns} dataSource={data} /> */}
+                    <Tabs defaultActiveKey="1" onChange={() => { this.roleTab() }} className="role-tab-div" tabBarExtraContent={this.sort}>
+                        <TabPane tab="用户角色" key="1" className="role-tab-div" >
+                            {<Table rowSelection={rowSelection} columns={UserInfoTab} dataSource={userInfoList?.data} />}
                         </TabPane>
                     </Tabs>
                 </div>
 
-                <Modal title="编辑角色"
+                <Modal title={updateInfoModalTitle}
                     visible={isUpdateRoleVisible} onOk={() => { this.updateRoleOK() }} onCancel={() => { this.updateRoleCancel() }}>
                     <div>
                         角色名称：<Input maxLength={6} value={updateRole?.name} placeholder="角色名称" style={{ width: '85%' }} onChange={(e) => { this.updateRoleName(e); }} />

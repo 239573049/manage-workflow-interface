@@ -48,7 +48,6 @@ class Admin extends React.Component<IProps, IState> {
   };
 
   add = (title: string, content: string, key: string) => {
-    // const { panes } = this.state;
     const panes = this.state.panes
       const activeKey = panes && panes.find(a => a.key === key);
     if (activeKey ) {
@@ -116,14 +115,14 @@ class Admin extends React.Component<IProps, IState> {
     return menuList.map(item => {
       if (item.children.length === 0) {
         return (
-          <Menu.Item key={item.key} icon="" onClick={() => { this.menuOnClick(item) }}>
+          <Menu.Item key={item.key} onClick={() => { this.menuOnClick(item) }}>
             {item.title}
           </Menu.Item>
         )
       } else {
         return (
           // 第三种方法直接使用React.createElement
-          <SubMenu key={item.key} icon="" title={item.title}>
+          <SubMenu key={item.key}  title={item.title}>
             {this.getMenuNodes(item.children)}
           </SubMenu>
         )
@@ -149,19 +148,19 @@ class Admin extends React.Component<IProps, IState> {
   render(): React.ReactNode {
     const { collapsed, menu, user } = this.state;
     const content = (
-      <div>
-        <Card hoverable size="small">个人信息</Card>
-        <Card hoverable size="small">消息提醒</Card>
-        <Card hoverable size="small" onClick={this.logOut} >退出登录</Card>
+      <div className='user-info-content'>
+        <div className='card-user'>个人信息</div>
+        <div className='card-user'>消息提醒</div>
+        <div className='card-user' onClick={this.logOut} >退出登录</div>
       </div>
     );
     return (
       <Layout style={{ minHeight: '100vh' }}>
-        <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
+        <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse} theme="light">
           <Menu
             style={{ width: "100%" }}
             mode="inline"
-            theme="dark"
+            theme="light"
           >
             {menu}
           </Menu>
