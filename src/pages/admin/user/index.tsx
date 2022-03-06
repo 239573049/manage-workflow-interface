@@ -23,7 +23,11 @@ interface IState {
         data: UserInfo[],
         count: number
     },
-    isAddUserInfo: boolean
+    modalModel: {
+        state: string | 'add' | 'put',
+        initialValue: any,
+        isAddUserInfo: boolean
+    }
 }
 interface IProps {
 
@@ -43,7 +47,11 @@ class UserAdmin extends React.Component<IProps, IState> {
             data: [],
             count: 1,
         },
-        isAddUserInfo: false
+        modalModel: {
+            state: 'add',
+            initialValue:new UserInfo(),
+            isAddUserInfo: false
+        }
     }
 
     /***
@@ -85,7 +93,10 @@ class UserAdmin extends React.Component<IProps, IState> {
                 return (
                     <div>
                         <span>
-                            <Button >编辑</Button>
+                            <Button onClick={()=>{
+                                var modalModel={state:'put',isAddUserInfo:true,initialValue:user}
+                                this.setState({modalModel})
+                            }}>编辑</Button>
                         </span>
                         <span>
                             <Button onClick={() => this.showDeleteConfirm(user)}>删除</Button>
@@ -136,14 +147,8 @@ class UserAdmin extends React.Component<IProps, IState> {
      */
     onConditionDateChange(e: any) {
         var { condition } = this.state
-        if (!e) {
-            condition.startTime = ''
-            condition.endTime = ''
-
-        } else {
-            condition.startTime = moment(e[0]).format('YYYY-MM-DD 00:00:00');
-            condition.endTime =  moment(e[1]).format('YYYY-MM-DD 23:59:59');
-        }
+        condition.startTime = e ? moment(e[0]).format('YYYY-MM-DD 00:00:00') : '';
+        condition.endTime = e ? moment(e[1]).format('YYYY-MM-DD 23:59:59') : '';
         this.setState({
             condition
         })
@@ -173,7 +178,9 @@ class UserAdmin extends React.Component<IProps, IState> {
                 var data = res.data;
                 if (data.statusCode === 200) {
                     message.success('添加成功')
-                    this.setState({ isAddUserInfo: false })
+                    var {modalModel}=this.state;
+                    modalModel.isAddUserInfo=false
+                    this.setState({ modalModel })
                     this.UserApi()
                 } else {
                     message.error(data.message)
@@ -182,6 +189,14 @@ class UserAdmin extends React.Component<IProps, IState> {
                 var data = err.data;
                 message.error(data.message)
             })
+    }
+    onFormUserInfo(value:any){
+        var {modalModel}=this.state;
+        if(modalModel.state==='add'){
+            this.onAddUserInfoClick(value)
+        }else if(modalModel.state==='put'){
+            
+        }
     }
     /**
      * 表格页面更新
@@ -196,7 +211,7 @@ class UserAdmin extends React.Component<IProps, IState> {
     }
     render(): React.ReactNode {
         var { UserInfoTab } = this;
-        var { userInfoData, isAddUserInfo, condition } = this.state
+        var { userInfoData, modalModel, condition } = this.state
         return (
             <div>
                 <div className="condition">
@@ -223,7 +238,10 @@ class UserAdmin extends React.Component<IProps, IState> {
                             搜索
                         </Button></span>
                     <span>
-                        <Button type="primary" onClick={() => this.setState({ isAddUserInfo: true })}>
+                        <Button type="primary" onClick={() => {
+                            var modalModel = {state:'add',initialValue:null,isAddUserInfo:true};
+                            this.setState({ modalModel })
+                        }}>
                             添加用户
                         </Button>
                     </span>
@@ -234,17 +252,23 @@ class UserAdmin extends React.Component<IProps, IState> {
                         onChange={(pagination: any, filters: any, sorter: any) => { this.onTabChange(pagination, filters, sorter) }}
                         pagination={{ position: ['bottomRight'], pageSize: condition.pageSize, current: condition.pageNo, total: userInfoData.count }} columns={UserInfoTab} dataSource={userInfoData.data} />
                 </div>
-                <Modal title="添加用户" visible={isAddUserInfo}
+                <Modal title={modalModel.state==='add'?'添加用户':'编辑用户'} visible={modalModel.isAddUserInfo}
                     footer={[
 
                     ]}
-                    onCancel={() => { this.setState({ isAddUserInfo: false }) }} >
+                    destroyOnClose
+                    onCancel={() => {
+                        var { modalModel } = this.state
+                        modalModel.isAddUserInfo = false
+                        this.setState({ modalModel })
+                    }} >
                     <div>
                         <Form
                             name="basic"
                             labelCol={{ span: 8 }}
                             wrapperCol={{ span: 16 }}
-                            onFinish={(value: any) => { this.onAddUserInfoClick(value) }}
+                            initialValues={modalModel.initialValue}
+                            onFinish={(value: any) => { this.onFormUserInfo(value) }}
                         >
                             <Form.Item
                                 label="账号："
@@ -270,7 +294,6 @@ class UserAdmin extends React.Component<IProps, IState> {
                             <Form.Item
                                 label="性别："
                                 name="sex"
-                                initialValue={'1'}
                             >
                                 <Select defaultValue={'1'} placeholder="选择性别">
                                     <Option value="1">男性</Option>
@@ -282,7 +305,7 @@ class UserAdmin extends React.Component<IProps, IState> {
                                 label="手机号："
                                 name="mobileNumber"
                             >
-                                <InputNumber min={1} max={11} style={{ width: '100%' }} />
+                                <InputNumber min={1} max={19999999999} style={{ width: '100%' }} />
                             </Form.Item>
                             <Form.Item
                                 label="邮箱："
