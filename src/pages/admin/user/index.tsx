@@ -278,6 +278,7 @@ class UserAdmin extends React.Component<IProps, IState> {
                                 <Input />
                             </Form.Item>
                             <Form.Item
+                                style={modalModel.state==='put'?{}:{display:'none'}}
                                 label="密码："
                                 name="password"
                                 rules={[{ required: true, message: '请输入密码！' }]}
@@ -314,7 +315,7 @@ class UserAdmin extends React.Component<IProps, IState> {
                                 <Input />
                             </Form.Item>
                             <Form.Item >
-                                <Button type="primary" htmlType="submit" style={{ float: 'right' }}>添加</Button>
+                                <Button type="primary" htmlType="submit" style={{ float: 'right' }}>{modalModel.state==='add'?"添加账号":"编辑账号"}</Button>
                             </Form.Item>
                         </Form>
                     </div>
