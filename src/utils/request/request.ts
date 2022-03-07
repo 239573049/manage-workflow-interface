@@ -41,10 +41,12 @@ instance.interceptors.response.use(
   },
   (error) => {
     const response = error.response;
+    const data=response.data
     // 根据返回的http状态码做不同的处理
     switch (response?.status) {
       case 400:
-        //  页面找不到
+        
+        message.error(data.message)
         break;
       case 401:
         message.error('请先登录！');

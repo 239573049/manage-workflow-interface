@@ -3,12 +3,13 @@ import { FormOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
 import RoleConfigApi from '../../../../apis/admin/roleConfig/index'
 import './index.less'
 import Role from '../../../../model/role/role'
-import { Button, Input, message, Modal, Popconfirm, Table, Tabs } from "antd";
+import { Button, Form, Input, message, Modal, Table, Tabs } from "antd";
 import Paging from '../../../../model/paging/paging'
 import { UserInfo } from "../../../../model/userInfo/userInfo";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd"
 import roleConfig from "../../../../apis/admin/roleConfig/index";
 const { TabPane } = Tabs;
+const { confirm } = Modal;
 interface IState {
     data: Search,
     role_list: Role[],
@@ -17,13 +18,18 @@ interface IState {
     pitch: string,
     userInfoList: Paging<UserInfo> | undefined,
     userInfoSelection: [],
-    updateInfoModalTitle:string,
-    TabOperationData:any,
-    addRoleUserInfoSearch:{
-        id:string|undefined,
-        name:string|undefined,
-        pageNo:number|undefined,
-        pageSize:number|undefined
+    roleModal: {
+        initialValue: Role | undefined,
+        state: string | 'add' | 'put',
+        isVisible: boolean| undefined,
+    },
+    updateInfoModalTitle: string,
+    TabOperationData: any,
+    addRoleUserInfoSearch: {
+        id: string | undefined,
+        name: string | undefined,
+        pageNo: number | undefined,
+        pageSize: number | undefined
     }
 }
 interface IProps {
@@ -82,16 +88,21 @@ class RoleConfig extends React.Component<IProps, IState>{
             name: undefined,
             pageNo: undefined,
             pageSize: undefined
+        },
+        roleModal: {
+            initialValue: undefined,
+            state: "add",
+            isVisible: false
         }
     }
     /**
      * 自定义Tab按钮
      */
-    sort=<div><span><Button onClick={()=>{this.GetRoleUserInfoNotExit()}}>添加用户</Button></span><span> <Button onClick={()=>{this.deleteRoleUserInfo()}}>删除用户</Button></span></div>
-    deleteRoleUserInfo(){
-        var {userInfoSelection} =this.state;
+    sort = <div><span><Button onClick={() => { this.GetRoleUserInfoNotExit() }}>添加用户</Button></span><span> <Button onClick={() => { this.deleteRoleUserInfo() }}>删除用户</Button></span></div>
+    deleteRoleUserInfo() {
+        var { userInfoSelection } = this.state;
         console.log(userInfoSelection);
-        
+
     }
     /**
      * 渲染前
@@ -102,17 +113,17 @@ class RoleConfig extends React.Component<IProps, IState>{
     /**
      * 获取角色不存在的用户
      */
-    GetRoleUserInfoNotExit(){
-        var {addRoleUserInfoSearch,pitch}=this.state;
+    GetRoleUserInfoNotExit() {
+        var { addRoleUserInfoSearch, pitch } = this.state;
 
-        if(pitch===''){
+        if (pitch === '') {
             message.warning('请先选择角色')
             return;
         }
-        RoleConfigApi.GetRoleUserInfoNotExit(pitch,addRoleUserInfoSearch?.name??'',addRoleUserInfoSearch?.pageNo??1,addRoleUserInfoSearch?.pageSize??20)
-            .then(res=>{
-                if(res.data.statusCode===200){
-                    var data=res.data.data;
+        RoleConfigApi.GetRoleUserInfoNotExit(pitch, addRoleUserInfoSearch?.name ?? '', addRoleUserInfoSearch?.pageNo ?? 1, addRoleUserInfoSearch?.pageSize ?? 20)
+            .then(res => {
+                if (res.data.statusCode === 200) {
+                    var data = res.data.data;
                     console.log(data);
                 }
 
@@ -121,10 +132,10 @@ class RoleConfig extends React.Component<IProps, IState>{
     /**
      * 获取角色列表
      */
-    GetUserMenuList(initial:boolean=false) {
+    GetUserMenuList(initial: boolean = false) {
         RoleConfigApi.GetUserMenuList(this.state.data.name ?? "")
             .then((res) => {
-                if(initial&&res.data.statusCode === 200&&res.data.data.length>0){
+                if (initial && res.data.statusCode === 200 && res.data.data.length > 0) {
                     this.updateRolePitch(res.data.data[0])
                 }
                 this.setState({
@@ -149,28 +160,12 @@ class RoleConfig extends React.Component<IProps, IState>{
     /**
      * 编辑添加角色
      */
-    updateRole(role: Role | undefined, isAdd: boolean) {
-        if (isAdd) {
-            let role: Role = {
-                code: '', isAdd: true, name: '', remark: '',
-                id: undefined,
-                key: undefined,
-                parentId: undefined,
-                index: 0
-            }
-
-            this.setState({
-                updateRole: role,
-                updateInfoModalTitle:'添加角色',
-                isUpdateRoleVisible: true
-            })
-        } else {
-            this.setState({
-                updateInfoModalTitle:'编辑角色',
-                updateRole: role,
-                isUpdateRoleVisible: true
-            })
-        }
+    updateRole(role: Role | undefined, state: string | 'add' | 'put') {
+        var { roleModal } = this.state;
+        roleModal.initialValue = role;
+        roleModal.state = state;
+        roleModal.isVisible = true;
+        this.setState({ roleModal })
     }
     /**
      * 删除角色
@@ -178,86 +173,50 @@ class RoleConfig extends React.Component<IProps, IState>{
      */
     deleteRole(role: Role | undefined) {
         if (role) {
-            RoleConfigApi.DeleteRole(role.id!)
-                .then(res => {
-                    if (res.data.statusCode === 200) {
-                        message.success("删除成功")
-                    } else {
-                        message.error(res.data.message);
-                    }
-                    this.GetUserMenuList()
-                })
+            confirm({
+                title: '删除用户',
+                content: '是否删除角色' + role.name,
+                okText: '确认',
+                okType: 'danger',
+                cancelText: '取消',
+                onOk: () => {
+                    RoleConfigApi.DeleteRole(role.id!)
+                        .then(res => {
+                            if (res.data.statusCode === 200) {
+                                message.success("删除成功")
+                            } else {
+                                message.error(res.data.message);
+                            }
+                            this.GetUserMenuList()
+                        })
+                },
+            });
+
         }
     }
     /**
      * 编辑添加角色
      */
-    updateRoleOK() {
-        var role = this.state.updateRole;
-        if (role) {
-            if (role.isAdd) {
-                RoleConfigApi.CreateRole(role)
-                    .then(res => {
-                        if (res.data.statusCode === 200) {
-                            message.success("添加成功")
-                        } else {
-                            message.error(res.data.message);
-                        }
-                        this.GetUserMenuList()
-                        this.setState({ isUpdateRoleVisible: false, updateRole: undefined })
-                    })
-            } else {
-                RoleConfigApi.UpdateRole(role)
-                    .then(res => {
-                        if (res.data.statusCode === 200) {
-                            message.success("编辑成功")
-                        } else {
-                            message.error(res.data.message);
-                        }
-                        this.setState({ isUpdateRoleVisible: false, updateRole: undefined })
-                    })
-            }
+    updateRoleOK(value:any) {
+        var { roleModal } = this.state;
+        if (roleModal.state === 'add') {
+            RoleConfigApi.CreateRole(value)
+                .then(res => {
+                    message.success("添加成功")
+                    this.GetUserMenuList()
+                    roleModal.isVisible=false
+                    this.setState({ roleModal })
+                })
+        } else {
+            RoleConfigApi.UpdateRole(roleModal.initialValue!)
+                .then(res => {
+                    message.success("编辑成功")
+                    this.GetUserMenuList()
+                    roleModal.isVisible=false
+                    this.setState({ roleModal })
+                })
         }
-    }
-    /**
-     * 编辑角色窗口关闭
-     */
-    updateRoleCancel() {
-        this.setState({
-            updateRole: undefined,
-            isUpdateRoleVisible: false
-        })
-    }
-    /**
-     * 编辑角色备注
-     *  */
-    updateRoleRemark(e: any) {
-        var role = this.state.updateRole;
-        if (role) {
-            role.remark = e.target.value;
-        }
-        this.setState({ updateRole: role })
-    }
-    /**
-     * 编辑角色编码
-     * @param e 
-     */
-    updateRoleCode(e: any) {
-        var role = this.state.updateRole;
-        if (role) {
-            role.code = e.target.value;
-        }
-        this.setState({ updateRole: role })
-    }
-    /**
-     * 编辑角色名称
-     */
-    updateRoleName(e: any) {
-        var role = this.state.updateRole;
-        if (role) {
-            role.name = e.target.value;
-        }
-        this.setState({ updateRole: role })
+
     }
     /**
      * 记录编辑id
@@ -270,8 +229,8 @@ class RoleConfig extends React.Component<IProps, IState>{
             })
         }
     }
-    roleTab() {
-
+    roleTab(value:any) {
+        console.log(value);
     }
     onUserInfoSelectChange = (userInfoSelection: any) => {
         this.setState({ userInfoSelection });
@@ -279,27 +238,27 @@ class RoleConfig extends React.Component<IProps, IState>{
     /**
      * 拖动逻辑处理
      */
-    onDragEnd = (result:any) => {
+    onDragEnd = (result: any) => {
         const sourceIndex = result.source.index;
         const destinationIndex = result.destination.index;
         if (sourceIndex === destinationIndex) {
-          return;
+            return;
         }
         const userList = this.state.role_list;
         const [draggedItem] = userList.splice(sourceIndex, 1);
         userList.splice(destinationIndex, 0, draggedItem);
-        var destination=userList[sourceIndex];
-        destination.index=sourceIndex;
-        draggedItem.index=destinationIndex;
+        var destination = userList[sourceIndex];
+        destination.index = sourceIndex;
+        draggedItem.index = destinationIndex;
         //更新数据
-       roleConfig.UpdateRoleIndex([draggedItem,destination])
+        roleConfig.UpdateRoleIndex([draggedItem, destination])
         this.setState({
-          role_list: userList,
+            role_list: userList,
         });
     };
 
     render(): React.ReactNode {
-        var { role_list, isUpdateRoleVisible, updateRole, pitch, userInfoSelection, userInfoList,updateInfoModalTitle } = this.state;
+        var { role_list, pitch, userInfoSelection, userInfoList, roleModal } = this.state;
         const rowSelection = {
             userInfoSelection,
             onChange: this.onUserInfoSelectChange,
@@ -309,7 +268,7 @@ class RoleConfig extends React.Component<IProps, IState>{
                 <div className="role-list-div">
                     <div className="role-list-title">
                         <span>角色架构 </span>
-                        <Button style={{ width: '70px' }} onClick={() => { this.updateRole(undefined, true) }}>添加</Button>
+                        <Button style={{ width: '70px' }} onClick={() => { this.updateRole(undefined, 'add') }}>添加</Button>
                     </div><br />
                     <DragDropContext onDragEnd={this.onDragEnd}>
                         <div className="myModal">
@@ -334,12 +293,10 @@ class RoleConfig extends React.Component<IProps, IState>{
                                                                 {item.name}
                                                             </span>
                                                             <span className="role-list-div-role-edit">
-                                                                <Popconfirm title="确定删除这个角色吗？" okText="确定" cancelText="取消" onConfirm={() => { this.deleteRole(item) }}>
-                                                                    <DeleteOutlined />
-                                                                </Popconfirm>
+                                                                <DeleteOutlined onClick={() => this.deleteRole(item)} />
                                                             </span>
                                                             <span className="role-list-div-role-edit">
-                                                                <FormOutlined onClick={() => { this.updateRole(item, false) }} />
+                                                                <FormOutlined onClick={() => { this.updateRole(item, 'put') }} />
                                                             </span>
                                                         </div>
                                                     </div>
@@ -354,25 +311,49 @@ class RoleConfig extends React.Component<IProps, IState>{
                     </DragDropContext>
                 </div>
                 <div className="role-list-data role-tab-div">
-                    <Tabs defaultActiveKey="1" onChange={() => { this.roleTab() }} className="role-tab-div" tabBarExtraContent={this.sort}>
+                    <Tabs defaultActiveKey="1" onChange={(value:any) => this.roleTab(value)} className="role-tab-div" tabBarExtraContent={this.sort}>
                         <TabPane tab="用户角色" key="1" className="role-tab-div" >
                             {<Table rowSelection={rowSelection} columns={UserInfoTab} dataSource={userInfoList?.data} />}
                         </TabPane>
                     </Tabs>
                 </div>
 
-                <Modal title={updateInfoModalTitle}
-                    visible={isUpdateRoleVisible} onOk={() => { this.updateRoleOK() }} onCancel={() => { this.updateRoleCancel() }}>
-                    <div>
-                        角色名称：<Input maxLength={6} value={updateRole?.name} placeholder="角色名称" style={{ width: '85%' }} onChange={(e) => { this.updateRoleName(e); }} />
-                    </div><br />
-                    <div>
-                        角色编号：<Input maxLength={6} value={updateRole?.code} placeholder="角色编号" style={{ width: '85%' }} onChange={(e) => { this.updateRoleCode(e); }} />
-                    </div><br />
-                    <div>
-                        角色备注：<Input maxLength={8} value={updateRole?.remark} placeholder="角色备注" style={{ width: '85%' }} onChange={(e) => { this.updateRoleRemark(e); }} />
-                    </div>
+                <Modal title={roleModal.state === 'add' ? "添加角色" : "编辑角色"}
+                    onCancel={() => this.setState({ roleModal:{isVisible:false,state:'add',initialValue:undefined} })
+                    } 
+                    destroyOnClose
+                    visible={roleModal.isVisible} footer={[]}>
+                    <Form name="basic"
+                        labelCol={{ span: 8 }}
+                        wrapperCol={{ span: 16 }}
+                        initialValues={roleModal.initialValue}
+                        onFinish={(value: any) => this.updateRoleOK(value)}>
+                        <Form.Item
+                            label="角色名称："
+                            name="name"
+                            rules={[{ required: true, message: '请输入角色名称！' }]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            label="角色编号："
+                            name="code"
+                            rules={[{ required: true, message: '请输入角色编号！' }]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            label="角色备注："
+                            name="remark"
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name='id'>
+                            <Button type="primary" htmlType="submit" style={{ float: 'right' }}>{roleModal.state === 'add' ? "确认添加" : "确认编辑"}</Button>
+                        </Form.Item>
+                    </Form>
                 </Modal>
+
             </div>
 
         )

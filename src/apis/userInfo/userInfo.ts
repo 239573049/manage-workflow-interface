@@ -10,5 +10,8 @@ class UserApi{
     DeleteUserInfo(userId:string){
         return instance.delete(`USerInfo/DeleteUserInfo?userId=${userId}`)
     }
+    UpdateUserInfo(userInfo:UserInfo){
+        return instance.put('UserInfo/UpdateUserInfo',userInfo)
+    }
 }
 export default new UserApi()

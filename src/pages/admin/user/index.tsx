@@ -163,9 +163,6 @@ class UserAdmin extends React.Component<IProps, IState> {
             .then(res => {
                 message.success('删除成功')
                 return this.UserApi()
-            }).catch(err => {
-                var data = err.data;
-                message.error(data.message)
             })
     }
     /**
@@ -185,17 +182,28 @@ class UserAdmin extends React.Component<IProps, IState> {
                 } else {
                     message.error(data.message)
                 }
-            }).catch(err => {
-                var data = err.data;
-                message.error(data.message)
             })
     }
+    onUpdateUserInfo(value:any){
+        UserInfoApi.UpdateUserInfo(value)
+            .then(()=>{
+                message.success('编辑成功')
+                var {modalModel}=this.state;
+                modalModel.isAddUserInfo=false
+                this.setState({ modalModel })
+                this.UserApi()
+            })
+    }
+    /**
+     * 编辑账号
+     * @param value 
+     */
     onFormUserInfo(value:any){
         var {modalModel}=this.state;
         if(modalModel.state==='add'){
             this.onAddUserInfoClick(value)
         }else if(modalModel.state==='put'){
-            
+            this.onUpdateUserInfo(value)
         }
     }
     /**
@@ -278,7 +286,7 @@ class UserAdmin extends React.Component<IProps, IState> {
                                 <Input />
                             </Form.Item>
                             <Form.Item
-                                style={modalModel.state==='put'?{}:{display:'none'}}
+                                style={modalModel.state==='put'?{display:'none'}:{}}
                                 label="密码："
                                 name="password"
                                 rules={[{ required: true, message: '请输入密码！' }]}
@@ -296,9 +304,9 @@ class UserAdmin extends React.Component<IProps, IState> {
                                 label="性别："
                                 name="sex"
                             >
-                                <Select defaultValue={'1'} placeholder="选择性别">
-                                    <Option value="1">男性</Option>
-                                    <Option value="2">女性</Option>
+                                <Select placeholder="选择性别">
+                                    <Option value={1}>男性</Option>
+                                    <Option value={2}>女性</Option>
                                 </Select>
                             </Form.Item>
 
@@ -314,7 +322,7 @@ class UserAdmin extends React.Component<IProps, IState> {
                             >
                                 <Input />
                             </Form.Item>
-                            <Form.Item >
+                            <Form.Item name='id'>
                                 <Button type="primary" htmlType="submit" style={{ float: 'right' }}>{modalModel.state==='add'?"添加账号":"编辑账号"}</Button>
                             </Form.Item>
                         </Form>
