@@ -6,6 +6,7 @@ import UserInfoApi from '../../../apis/userInfo/userInfo'
 import moment from "moment";
 import { UserInfo } from "../../../model/userInfo/userInfo";
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import roleConfigApi from "../../../apis/admin/roleConfig";
 import { encryptByDES } from '../../../utils/des/des'
 const { Option } = Select;
 const { confirm } = Modal;
@@ -107,6 +108,7 @@ class UserAdmin extends React.Component<IProps, IState> {
         },
 
     ];
+
     showDeleteConfirm = (data: UserInfo) => {
         confirm({
             title: '删除用户',
@@ -157,8 +159,7 @@ class UserAdmin extends React.Component<IProps, IState> {
      * 删除用户
      * @param e 
      */
-    deleteUserInfo
-        (e: UserInfo) {
+    deleteUserInfo(e: UserInfo) {
         UserInfoApi.DeleteUserInfo(e.id!)
             .then(res => {
                 message.success('删除成功')
@@ -206,11 +207,11 @@ class UserAdmin extends React.Component<IProps, IState> {
             this.onUpdateUserInfo(value)
         }
     }
+
     /**
      * 表格页面更新
      */
     onTabChange(pagination: any, filters: any, sorter: any) {
-        console.log(pagination);
         var { condition } = this.state
         condition.pageNo = pagination.current
         condition.pageSize = pagination.pageSize
@@ -258,7 +259,8 @@ class UserAdmin extends React.Component<IProps, IState> {
                     <Table
                         scroll={{ y: 530 }}
                         onChange={(pagination: any, filters: any, sorter: any) => { this.onTabChange(pagination, filters, sorter) }}
-                        pagination={{ position: ['bottomRight'], pageSize: condition.pageSize, current: condition.pageNo, total: userInfoData.count }} columns={UserInfoTab} dataSource={userInfoData.data} />
+                        pagination={{ position: ['bottomRight'], pageSize: condition.pageSize, current: condition.pageNo, total: userInfoData.count }} 
+                        columns={UserInfoTab} dataSource={userInfoData.data} />
                 </div>
                 <Modal title={modalModel.state==='add'?'添加用户':'编辑用户'} visible={modalModel.isAddUserInfo}
                     footer={[

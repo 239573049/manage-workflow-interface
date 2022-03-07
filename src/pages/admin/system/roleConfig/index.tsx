@@ -16,12 +16,11 @@ interface IState {
     isUpdateRoleVisible: boolean,
     updateRole: Role | undefined,
     pitch: string,
-    userInfoList: Paging<UserInfo> | undefined,
     userInfoSelection: [],
     roleModal: {
         initialValue: Role | undefined,
         state: string | 'add' | 'put',
-        isVisible: boolean| undefined,
+        isVisible: boolean | undefined,
     },
     updateInfoModalTitle: string,
     TabOperationData: any,
@@ -30,6 +29,23 @@ interface IState {
         name: string | undefined,
         pageNo: number | undefined,
         pageSize: number | undefined
+    },
+    GetRoleUserInfo: {
+        id: string,
+        count: number,
+        pageNo: number | 1,
+        pageSize: number | 20,
+        data: UserInfo[]
+    },
+    addRoleUserInfo: {
+        id: string | '',
+        name: string | '',
+        count: number,
+        data: UserInfo[]
+        isVisible: boolean,
+        pageNo: number | 1,
+        pageSize: number | 20
+        userInfoSelection: []
     }
 }
 interface IProps {
@@ -71,7 +87,20 @@ const UserInfoTab = [
         dataIndex: 'eMail',
     },
 ];
-
+const RoleUserInfoTab = [
+    {
+        title: '序号',
+        dataIndex: 'key',
+    },
+    {
+        title: '账号',
+        dataIndex: 'accountNumber',
+    },
+    {
+        title: '名称',
+        dataIndex: 'name',
+    }
+];
 class RoleConfig extends React.Component<IProps, IState>{
     state: IState = {
         data: new Search(),
@@ -79,7 +108,6 @@ class RoleConfig extends React.Component<IProps, IState>{
         isUpdateRoleVisible: false,
         updateRole: undefined,
         pitch: '',
-        userInfoList: undefined,
         userInfoSelection: [],
         updateInfoModalTitle: '',
         TabOperationData: undefined,
@@ -93,6 +121,23 @@ class RoleConfig extends React.Component<IProps, IState>{
             initialValue: undefined,
             state: "add",
             isVisible: false
+        },
+        addRoleUserInfo: {
+            id: '',
+            name: '',
+            count: 1,
+            data: [],
+            pageNo: 1,
+            pageSize: 20,
+            isVisible: false,
+            userInfoSelection: []
+        },
+        GetRoleUserInfo: {
+            id: "",
+            count: 0,
+            pageNo: 1,
+            pageSize: 20,
+            data: []
         }
     }
     /**
@@ -100,9 +145,9 @@ class RoleConfig extends React.Component<IProps, IState>{
      */
     sort = <div><span><Button onClick={() => { this.GetRoleUserInfoNotExit() }}>添加用户</Button></span><span> <Button onClick={() => { this.deleteRoleUserInfo() }}>删除用户</Button></span></div>
     deleteRoleUserInfo() {
-        var { userInfoSelection } = this.state;
-        console.log(userInfoSelection);
-
+        var { userInfoSelection,GetRoleUserInfo,pitch} = this.state;
+        var data=GetRoleUserInfo.data.filter(a=>userInfoSelection.includes(a.key as never)).map(a=>a.id);
+        this.CreateRoleUser(data,pitch,false)
     }
     /**
      * 渲染前
@@ -114,17 +159,21 @@ class RoleConfig extends React.Component<IProps, IState>{
      * 获取角色不存在的用户
      */
     GetRoleUserInfoNotExit() {
-        var { addRoleUserInfoSearch, pitch } = this.state;
-
+        var { addRoleUserInfo, pitch } = this.state;
         if (pitch === '') {
             message.warning('请先选择角色')
             return;
         }
-        RoleConfigApi.GetRoleUserInfoNotExit(pitch, addRoleUserInfoSearch?.name ?? '', addRoleUserInfoSearch?.pageNo ?? 1, addRoleUserInfoSearch?.pageSize ?? 20)
+        RoleConfigApi.GetRoleUserInfoNotExit(pitch, addRoleUserInfo?.name ?? '', addRoleUserInfo?.pageNo ?? 1, addRoleUserInfo?.pageSize ?? 20)
             .then(res => {
                 if (res.data.statusCode === 200) {
                     var data = res.data.data;
-                    console.log(data);
+                    addRoleUserInfo.data = data.data;
+                    if (addRoleUserInfo.isVisible === false) {
+                        addRoleUserInfo.isVisible = true;
+                    }
+                    addRoleUserInfo.count = data.count;
+                    this.setState({ addRoleUserInfo })
                 }
 
             })
@@ -135,24 +184,30 @@ class RoleConfig extends React.Component<IProps, IState>{
     GetUserMenuList(initial: boolean = false) {
         RoleConfigApi.GetUserMenuList(this.state.data.name ?? "")
             .then((res) => {
-                if (initial && res.data.statusCode === 200 && res.data.data.length > 0) {
-                    this.updateRolePitch(res.data.data[0])
+                var data = res.data
+                if (initial && data.data.length > 0) {
+                    this.updateRolePitch(data.data[0])
                 }
                 this.setState({
-                    role_list: [...res.data.data]
+                    role_list: [...data.data]
                 })
 
             })
     }
-    GetRoleUserInfo(id: string | undefined, pageNo: number | 1, pageSize: number | 20) {
-        RoleConfigApi.GetRoleUserInfo(id, pageNo, pageSize)
+    /**
+     * 获取角色用户信息
+     */
+    GetRoleUserInfo(id:string='') {
+        var { pitch, GetRoleUserInfo } = this.state;
+        pitch=id===''?pitch:id;
+        RoleConfigApi.GetRoleUserInfo(pitch, GetRoleUserInfo.pageNo, GetRoleUserInfo.pageSize)
             .then(res => {
                 var data = res.data;
                 if (data.statusCode === 200) {
                     var json = data.data as Paging<UserInfo>
-                    this.setState({
-                        userInfoList: json
-                    })
+                    GetRoleUserInfo.data = json.data;
+                    GetRoleUserInfo.count = json.count;
+                    this.setState({ GetRoleUserInfo })
                 }
 
             })
@@ -197,14 +252,14 @@ class RoleConfig extends React.Component<IProps, IState>{
     /**
      * 编辑添加角色
      */
-    updateRoleOK(value:any) {
+    updateRoleOK(value: any) {
         var { roleModal } = this.state;
         if (roleModal.state === 'add') {
             RoleConfigApi.CreateRole(value)
                 .then(res => {
                     message.success("添加成功")
                     this.GetUserMenuList()
-                    roleModal.isVisible=false
+                    roleModal.isVisible = false
                     this.setState({ roleModal })
                 })
         } else {
@@ -212,7 +267,7 @@ class RoleConfig extends React.Component<IProps, IState>{
                 .then(res => {
                     message.success("编辑成功")
                     this.GetUserMenuList()
-                    roleModal.isVisible=false
+                    roleModal.isVisible = false
                     this.setState({ roleModal })
                 })
         }
@@ -223,23 +278,29 @@ class RoleConfig extends React.Component<IProps, IState>{
      */
     updateRolePitch(value: Role) {
         if (value) {
-            this.GetRoleUserInfo(value.id, 1, 20)
             this.setState({
                 pitch: value.id!
             })
+            this.GetRoleUserInfo(value.id!)
         }
     }
-    roleTab(value:any) {
+    roleTab(value: any) {
         console.log(value);
     }
     onUserInfoSelectChange = (userInfoSelection: any) => {
         this.setState({ userInfoSelection });
     };
+    onAddRoleUserInfoChange = (userInfoSelection: any) => {
+        var { addRoleUserInfo } = this.state;
+        addRoleUserInfo.userInfoSelection = userInfoSelection;
+        this.setState({ addRoleUserInfo })
+    }
     /**
      * 拖动逻辑处理
      */
     onDragEnd = (result: any) => {
         const sourceIndex = result.source.index;
+        if(result.destination==null)return;
         const destinationIndex = result.destination.index;
         if (sourceIndex === destinationIndex) {
             return;
@@ -256,13 +317,57 @@ class RoleConfig extends React.Component<IProps, IState>{
             role_list: userList,
         });
     };
-
+    onAddRoleUserInfo() {
+        var { addRoleUserInfo, pitch } = this.state;
+        var data = addRoleUserInfo.data.filter(a => addRoleUserInfo.userInfoSelection.includes(a.key as never)).map(a => a.id)
+        this.CreateRoleUser(data, pitch, true)
+    }
+    /**
+     * 更新添加用户至角色页数
+     * @param pagination 
+     * @param filters 
+     * @param sorter 
+     */
+    onTabAddRoleUserInforPage(pagination: any, filters: any, sorter: any) {
+        var { addRoleUserInfo } = this.state;
+        addRoleUserInfo.pageNo = pagination.current
+        addRoleUserInfo.pageSize = pagination.pageSize
+        this.setState({ addRoleUserInfo })
+        this.GetRoleUserInfoNotExit()
+    }
+    /**
+     * 更新角色用户页数
+     * @param pagination 
+     * @param filters 
+     * @param sorter 
+     */
+    onTabAddRoleInforPage(pagination: any, filters: any, sorter: any) {
+        var { GetRoleUserInfo } = this.state;
+        GetRoleUserInfo.pageNo = pagination.current
+        GetRoleUserInfo.pageSize = pagination.pageSize
+        this.setState({ GetRoleUserInfo })
+        this.GetRoleUserInfo()
+    }
+    CreateRoleUser(userIds: any[], roleId: string, isAdd: boolean = true) {
+        var { addRoleUserInfo } = this.state
+        RoleConfigApi.CreateRoleUser(userIds, roleId, isAdd)
+            .then(res => {
+                message.success("操作成功")
+                addRoleUserInfo.isVisible = false
+                this.setState({ addRoleUserInfo })
+                this.GetRoleUserInfo()
+            })
+    }
     render(): React.ReactNode {
-        var { role_list, pitch, userInfoSelection, userInfoList, roleModal } = this.state;
+        var { role_list, pitch, userInfoSelection, roleModal, addRoleUserInfo, GetRoleUserInfo } = this.state;
         const rowSelection = {
             userInfoSelection,
             onChange: this.onUserInfoSelectChange,
         };
+        const addRoleSelection = {
+            addRoleUserInfo: addRoleUserInfo.userInfoSelection,
+            onChange: this.onAddRoleUserInfoChange
+        }
         return (
             <div className="role-container">
                 <div className="role-list-div">
@@ -311,16 +416,27 @@ class RoleConfig extends React.Component<IProps, IState>{
                     </DragDropContext>
                 </div>
                 <div className="role-list-data role-tab-div">
-                    <Tabs defaultActiveKey="1" onChange={(value:any) => this.roleTab(value)} className="role-tab-div" tabBarExtraContent={this.sort}>
+                    <Tabs defaultActiveKey="1" onChange={(value: any) => this.roleTab(value)} className="role-tab-div" tabBarExtraContent={this.sort}>
                         <TabPane tab="用户角色" key="1" className="role-tab-div" >
-                            {<Table rowSelection={rowSelection} columns={UserInfoTab} dataSource={userInfoList?.data} />}
+                            {<Table
+                                onChange={(pagination: any, filters: any, sorter: any) => { this.onTabAddRoleInforPage(pagination, filters, sorter) }}
+                                pagination={{position:["bottomRight"],pageSize:GetRoleUserInfo.pageSize,current:GetRoleUserInfo.pageNo,total:GetRoleUserInfo.count}}
+                                rowSelection={rowSelection} 
+                                scroll={{ y: 480 }} 
+                                columns={UserInfoTab} 
+                                dataSource={GetRoleUserInfo?.data}
+                            />}
+                        </TabPane>
+                        <TabPane tab="菜单角色" key="2" className="role-tab-div" >
+                         
+                         
                         </TabPane>
                     </Tabs>
                 </div>
 
                 <Modal title={roleModal.state === 'add' ? "添加角色" : "编辑角色"}
-                    onCancel={() => this.setState({ roleModal:{isVisible:false,state:'add',initialValue:undefined} })
-                    } 
+                    onCancel={() => this.setState({ roleModal: { isVisible: false, state: 'add', initialValue: undefined } })
+                    }
                     destroyOnClose
                     visible={roleModal.isVisible} footer={[]}>
                     <Form name="basic"
@@ -353,7 +469,28 @@ class RoleConfig extends React.Component<IProps, IState>{
                         </Form.Item>
                     </Form>
                 </Modal>
-
+                <Modal title='添加用户'
+                    destroyOnClose
+                    onCancel={() => {
+                        addRoleUserInfo.isVisible = false;
+                        this.setState({ addRoleUserInfo })
+                    }}
+                    onOk={() => this.onAddRoleUserInfo()}
+                    visible={addRoleUserInfo.isVisible}>
+                    <div className="condition">
+                        <span>用户名：<Input style={{ width: '200px' }} onChange={(e: any) => {
+                            addRoleUserInfo.name = e.target.value;
+                            this.setState({ addRoleUserInfo })
+                        }} /></span>
+                        <span><Button onClick={() => this.GetRoleUserInfoNotExit()}>搜索</Button></span>
+                    </div>
+                    <div>
+                        {<Table
+                            onChange={(pagination: any, filters: any, sorter: any) => { this.onTabAddRoleUserInforPage(pagination, filters, sorter) }}
+                            pagination={{ position: ['bottomRight'], pageSize: addRoleUserInfo.pageSize, current: addRoleUserInfo.pageNo, total: addRoleUserInfo.count }}
+                            rowSelection={addRoleSelection} columns={RoleUserInfoTab} dataSource={addRoleUserInfo.data} scroll={{ y: 450 }} />}
+                    </div>
+                </Modal>
             </div>
 
         )

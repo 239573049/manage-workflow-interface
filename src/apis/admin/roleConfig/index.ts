@@ -23,5 +23,8 @@ class RoleConfig {
     GetRoleUserInfoNotExit(id:string|undefined,name:string|undefined,pageNo:number|undefined,pageSize:number|undefined){
         return instance.get(`Role/GetRoleUserInfoNotExit?id=${id}&name=${name}&pageNo=${pageNo}&pageSize=${pageSize}`)
     }
+    CreateRoleUser(userIds:any[],roleId:string,isAdd:boolean=true){
+        return instance.post(`Role/CreateRoleUser?roleId=${roleId}&isAdd=${isAdd}`,userIds)
+    }
 }
 export default new RoleConfig();

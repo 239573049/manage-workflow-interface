@@ -10,6 +10,7 @@ class LoginUserInfo {
  * 用户信息
  */
 class UserInfo {
+  key:number|undefined;
   id: string | undefined;
   name: string | undefined;
   accountNumber: string | undefined;
