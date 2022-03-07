@@ -3,7 +3,7 @@ import { FormOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
 import RoleConfigApi from '../../../../apis/admin/roleConfig/index'
 import './index.less'
 import Role from '../../../../model/role/role'
-import { Button, Form, Input, message, Modal, Table, Tabs } from "antd";
+import { Button, Form, Input, message, Modal, Table, Tabs, Tree } from "antd";
 import Paging from '../../../../model/paging/paging'
 import { UserInfo } from "../../../../model/userInfo/userInfo";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd"
@@ -46,6 +46,14 @@ interface IState {
         pageNo: number | 1,
         pageSize: number | 20
         userInfoSelection: []
+    },
+    menuTree: {
+        expandedKeys: any[],
+        checkedKeys: any[],
+        defaultSelectedKeys: any[],
+        selectedKeys: any[],
+        autoExpandParent: boolean,
+        menuTreeData: any[]
     }
 }
 interface IProps {
@@ -138,6 +146,14 @@ class RoleConfig extends React.Component<IProps, IState>{
             pageNo: 1,
             pageSize: 20,
             data: []
+        },
+        menuTree: {
+            expandedKeys: [],
+            checkedKeys: [],
+            selectedKeys: [],
+            defaultSelectedKeys: [],
+            autoExpandParent: true,
+            menuTreeData: []
         }
     }
     /**
@@ -145,9 +161,9 @@ class RoleConfig extends React.Component<IProps, IState>{
      */
     sort = <div><span><Button onClick={() => { this.GetRoleUserInfoNotExit() }}>添加用户</Button></span><span> <Button onClick={() => { this.deleteRoleUserInfo() }}>删除用户</Button></span></div>
     deleteRoleUserInfo() {
-        var { userInfoSelection,GetRoleUserInfo,pitch} = this.state;
-        var data=GetRoleUserInfo.data.filter(a=>userInfoSelection.includes(a.key as never)).map(a=>a.id);
-        this.CreateRoleUser(data,pitch,false)
+        var { userInfoSelection, GetRoleUserInfo, pitch } = this.state;
+        var data = GetRoleUserInfo.data.filter(a => userInfoSelection.includes(a.key as never)).map(a => a.id);
+        this.CreateRoleUser(data, pitch, false)
     }
     /**
      * 渲染前
@@ -197,9 +213,9 @@ class RoleConfig extends React.Component<IProps, IState>{
     /**
      * 获取角色用户信息
      */
-    GetRoleUserInfo(id:string='') {
+    GetRoleUserInfo(id: string = '') {
         var { pitch, GetRoleUserInfo } = this.state;
-        pitch=id===''?pitch:id;
+        pitch = id === '' ? pitch : id;
         RoleConfigApi.GetRoleUserInfo(pitch, GetRoleUserInfo.pageNo, GetRoleUserInfo.pageSize)
             .then(res => {
                 var data = res.data;
@@ -281,7 +297,9 @@ class RoleConfig extends React.Component<IProps, IState>{
             this.setState({
                 pitch: value.id!
             })
+            console.log(value);
             this.GetRoleUserInfo(value.id!)
+            this.GetMenuTreeAll(value.id!)
         }
     }
     roleTab(value: any) {
@@ -300,7 +318,7 @@ class RoleConfig extends React.Component<IProps, IState>{
      */
     onDragEnd = (result: any) => {
         const sourceIndex = result.source.index;
-        if(result.destination==null)return;
+        if (result.destination == null) return;
         const destinationIndex = result.destination.index;
         if (sourceIndex === destinationIndex) {
             return;
@@ -358,8 +376,50 @@ class RoleConfig extends React.Component<IProps, IState>{
                 this.GetRoleUserInfo()
             })
     }
+    /**
+     * 获取菜单树形结构
+     */
+    GetMenuTreeAll(id: string | undefined) {
+        var { pitch, menuTree } = this.state;
+        RoleConfigApi.GetMenuTreeAll(id ?? pitch)
+            .then(res => {
+                var data = res.data.data;
+                menuTree.menuTreeData = [...data.item1];
+                menuTree.checkedKeys = [...data.item2];
+                this.setState({ menuTree })
+            })
+    }
+
+    onExpand = (expandedKeysValue: React.Key[]) => {
+        console.log('onExpand', expandedKeysValue);
+        var { menuTree } = this.state;
+        menuTree.expandedKeys = expandedKeysValue;
+        menuTree.autoExpandParent = false
+        this.setState({ menuTree })
+    }
+
+    onCheck = (checkedKeysValue: React.Key[]) => {
+        var { menuTree } = this.state;
+        menuTree.checkedKeys = checkedKeysValue;
+        this.CreateRoleMenu(checkedKeysValue)
+        this.setState({ menuTree })
+    }
+
+    onSelect = (selectedKeysValue: React.Key[], info: any) => {
+        console.log('onSelect', info);
+        var { menuTree } = this.state;
+        menuTree.selectedKeys = selectedKeysValue;
+        this.setState({ menuTree })
+    }
+    CreateRoleMenu(ids:any[]){
+        var {pitch}=this.state
+        RoleConfigApi.CreateRoleMenu(ids,pitch)
+            .then(res=>{
+                message.success('成功')
+            })
+    }
     render(): React.ReactNode {
-        var { role_list, pitch, userInfoSelection, roleModal, addRoleUserInfo, GetRoleUserInfo } = this.state;
+        var { role_list, pitch, userInfoSelection, roleModal, addRoleUserInfo, GetRoleUserInfo, menuTree } = this.state;
         const rowSelection = {
             userInfoSelection,
             onChange: this.onUserInfoSelectChange,
@@ -420,16 +480,27 @@ class RoleConfig extends React.Component<IProps, IState>{
                         <TabPane tab="用户角色" key="1" className="role-tab-div" >
                             {<Table
                                 onChange={(pagination: any, filters: any, sorter: any) => { this.onTabAddRoleInforPage(pagination, filters, sorter) }}
-                                pagination={{position:["bottomRight"],pageSize:GetRoleUserInfo.pageSize,current:GetRoleUserInfo.pageNo,total:GetRoleUserInfo.count}}
-                                rowSelection={rowSelection} 
-                                scroll={{ y: 480 }} 
-                                columns={UserInfoTab} 
+                                pagination={{ position: ["bottomRight"], pageSize: GetRoleUserInfo.pageSize, current: GetRoleUserInfo.pageNo, total: GetRoleUserInfo.count }}
+                                rowSelection={rowSelection}
+                                scroll={{ y: 480 }}
+                                columns={UserInfoTab}
                                 dataSource={GetRoleUserInfo?.data}
                             />}
                         </TabPane>
-                        <TabPane tab="菜单角色" key="2" className="role-tab-div" >
-                         
-                         
+                        <TabPane tab="菜单角色" key="2" className="role-tab-div">
+                            <Tree
+                                checkable
+                                defaultExpandAll
+                                defaultSelectedKeys={menuTree.defaultSelectedKeys}
+                                onExpand={(e: any) => this.onExpand(e)}
+                                expandedKeys={menuTree.expandedKeys}
+                                autoExpandParent={menuTree.autoExpandParent}
+                                onCheck={(e: any) => this.onCheck(e)}
+                                checkedKeys={menuTree.checkedKeys}
+                                onSelect={(e: any, info: any) => this.onSelect(e, info)}
+                                selectedKeys={menuTree.selectedKeys}
+                                treeData={menuTree.menuTreeData}
+                            />
                         </TabPane>
                     </Tabs>
                 </div>

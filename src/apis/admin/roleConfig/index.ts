@@ -26,5 +26,11 @@ class RoleConfig {
     CreateRoleUser(userIds:any[],roleId:string,isAdd:boolean=true){
         return instance.post(`Role/CreateRoleUser?roleId=${roleId}&isAdd=${isAdd}`,userIds)
     }
+    GetMenuTreeAll(roleId:string){
+        return instance.get(`Role/GetMenuTreeAll?roleId=${roleId}`)
+    }
+    CreateRoleMenu(ids:any[],roleId:string){
+        return instance.post(`Role/CreateRoleMenu?roleId=${roleId}`,ids)
+    }
 }
 export default new RoleConfig();
