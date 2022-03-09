@@ -40,7 +40,6 @@ class Admin extends React.Component<IProps, IState> {
   onEdit = (targetKey: any, action: "add" | "remove") => {
     if (action === "remove" && this.state.panes.length === 1) {
       message.warning("标签页不能小于一个");
-      console.log("a");
       return;
     } else if (action === "remove") {
       this.remove(targetKey);
