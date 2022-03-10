@@ -187,8 +187,8 @@ class Admin extends React.Component<IProps, IState> {
               style={{height:'100%'}}
             >
               {this.state.panes.map(pane => (
-                <TabPane tab={pane.title} key={pane.key} style={{height:'100%',minHeight:'720px'}}>
-                  <Card hoverable  style={{height:'100%',minHeight:'720px'}}>
+                <TabPane tab={pane.title} key={pane.key} style={{height:'100%'}}>
+                  <Card hoverable  style={{height:'740px',overflow:"auto"}}>
                   {PANE[pane.content]}
                   </Card>
                 </TabPane>
