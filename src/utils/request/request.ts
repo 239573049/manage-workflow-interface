@@ -7,8 +7,8 @@ const header = {
 const instance = axios.create({
   timeout: 60000,
   responseType: 'json',
-  //baseURL:'https://localhost:8088/api',
-  baseURL:'http://124.222.27.83:8889/api',
+  baseURL:'https://localhost:8088/api',
+  //baseURL:'http://124.222.27.83:8889/api',
   headers:header,
 });
 
@@ -68,4 +68,5 @@ instance.interceptors.response.use(
     return Promise.reject(response || { message: error.message });
   },
 );
+
 export default instance;
