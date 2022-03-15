@@ -2,6 +2,7 @@ import { Button, Form, Input, message, Modal, Table } from "antd";
 import React from "react";
 import WorkflowTemplateApi from '../../../../../../apis/workflowTemplate'
 import WorkflowTemplate from "../../../../../../model/workFlow/workflowTemplate";
+import WorkflowNodeTemplate from '../../../../../../model/workFlow/workflowNodeTemplate'
 import './index.less'
 const { confirm } = Modal;
 interface IState {
@@ -17,7 +18,10 @@ interface IState {
         state: 'add' | 'put',
         initialValue: WorkflowTemplate | undefined
     },
-
+    tabNode:{
+        isVisible: boolean,
+        initialValue: WorkflowNodeTemplate[] | undefined
+    }
 }
 interface IProps {
 
@@ -58,8 +62,9 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                         </span>
                         <span>
                             <Button onClick={() => {
-                                // var updateWorkflowTemplate = { isShow: true, initialValue: workflowTemplate }
-                                // this.setState({ updateWorkflowTemplate })
+                                var {tabNode}=this.state;
+                                tabNode.isVisible=true
+                                this.setState({ tabNode })
                             }}>节点配置</Button>
                         </span>
                         <span>
@@ -82,6 +87,10 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
             pageNo: 1,
             pageSize: 20,
             data: []
+        },
+        tabNode: {
+            isVisible: false,
+            initialValue: []
         }
     }
     componentDidMount() {
@@ -133,7 +142,6 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
         });
     }
     onShowOperate() {
-
         var { operateWorkflowTemplate } = this.state
         operateWorkflowTemplate.isVisible = true;
         operateWorkflowTemplate.initialValue=undefined
