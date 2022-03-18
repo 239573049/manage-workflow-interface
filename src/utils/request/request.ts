@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { message } from 'antd';
+import config from '../../config';
 const header = {
   'Content-Type': 'application/json;charset=UTF-8',
 };
@@ -7,8 +8,7 @@ const header = {
 const instance = axios.create({
   timeout: 60000,
   responseType: 'json',
-  baseURL:'https://localhost:8088/api',
-  //baseURL:'http://124.222.27.83:8889/api',
+  baseURL:config.baseURL,
   headers:header,
 });
 

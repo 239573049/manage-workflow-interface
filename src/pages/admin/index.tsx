@@ -168,6 +168,9 @@ class Admin extends React.Component<IProps, IState> {
           <Header className="site-layout-background" style={{ padding: 0 }} >
             <div
               className='headPortraits'>
+                <span>
+                  😀
+                </span>
               <span>
                 <Popover content={content} >
                   <Avatar size="large" src={user?.headPortraits|| ''} /></Popover>
@@ -188,7 +191,7 @@ class Admin extends React.Component<IProps, IState> {
             >
               {this.state.panes.map(pane => (
                 <TabPane tab={pane.title} key={pane.key} style={{height:'100%'}}>
-                  <Card hoverable  style={{height:'740px',overflow:"auto"}}>
+                  <Card hoverable  style={{height:'680px',overflow:"auto"}}>
                   {PANE[pane.content]}
                   </Card>
                 </TabPane>

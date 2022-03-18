@@ -20,6 +20,7 @@ interface IState {
     },
     tabNode:{
         isVisible: boolean,
+        workflowTemplateId:string|undefined,
         initialValue: WorkflowNodeTemplate[] | undefined
     }
 }
@@ -63,7 +64,9 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                         <span>
                             <Button onClick={() => {
                                 var {tabNode}=this.state;
-                                tabNode.isVisible=true
+                                tabNode.isVisible=true;
+                                tabNode.workflowTemplateId=workflowTemplate.id;
+                                console.log(tabNode);
                                 this.setState({ tabNode })
                             }}>节点配置</Button>
                         </span>
@@ -90,6 +93,7 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
         },
         tabNode: {
             isVisible: false,
+            workflowTemplateId:'',
             initialValue: []
         }
     }
@@ -150,7 +154,7 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
 
     }
     render(): React.ReactNode {
-        var { tabData, operateWorkflowTemplate } = this.state
+        var { tabData, operateWorkflowTemplate,tabNode} = this.state
         return (
             <div className="workcontent">
                 <div className="condition">
@@ -193,6 +197,14 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                             <Button style={{ width: '100%' }} htmlType="submit">{operateWorkflowTemplate.state === "add" ? "添加模板" : "编辑模板"}</Button>
                         </Form.Item>
                     </Form>
+                </Modal>
+                <Modal
+                    footer={[]}
+                    onCancel={() =>{tabNode.isVisible=false;tabNode.workflowTemplateId=''; this.setState({ tabNode})}
+                    }
+                    destroyOnClose
+                    title="添加模板节点" visible={tabNode.isVisible}>
+                    
                 </Modal>
             </div>
         )
