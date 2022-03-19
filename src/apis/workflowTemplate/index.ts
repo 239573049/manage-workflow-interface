@@ -60,5 +60,35 @@ class WorkflowTemplateApi extends Axios{
     CreateWorkflowNodeRole(workflowNodeId:string,roleIds:any[]){
         return this.post('WorkflowTemplate/CreateWorkflowNodeRole?workflowNodeId='+workflowNodeId,roleIds)
     }
+    /**
+     * 删除模板节点
+     * @param workflowNodeId 
+     * @returns 
+     */
+    DeleteWorkflowNodeTemplate(workflowNodeId:string){
+        return this.del('WorkflowTemplate/DeleteWorkflowNodeTemplate?workflowNodeId='+workflowNodeId)
+    }
+    /**
+     * 创建节点信息
+     * @param data 
+     * @returns 
+     */
+    CreateWorkflowNodeTemplate(data:any){
+        return this.post('WorkflowTemplate/CreateWorkflowNodeTemplate',data)
+    }
+    /**
+     * 编辑节点信息
+     * @param data 
+     * @returns 
+     */
+    UpdateWorkflowNodeTemplate(data:any){
+        return this.put("WorkflowTemplate/UpdateWorkflowNodeTemplate",data)
+    }
+    /***
+     * 编辑模板节点审批顺序
+     */
+    UpdateWorkflowNodeTemplateIndex(data:any){
+        return this.put("WorkflowTemplate/UpdateWorkflowNodeTemplateIndex",data)
+    }
 }
 export default new WorkflowTemplateApi()
