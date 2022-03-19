@@ -120,7 +120,6 @@ class Admin extends React.Component<IProps, IState> {
         )
       } else {
         return (
-          // 第三种方法直接使用React.createElement
           <SubMenu key={item.key}  title={item.title}>
             {this.getMenuNodes(item.children)}
           </SubMenu>
@@ -168,9 +167,6 @@ class Admin extends React.Component<IProps, IState> {
           <Header className="site-layout-background" style={{ padding: 0 }} >
             <div
               className='headPortraits'>
-                <span>
-                  😀
-                </span>
               <span>
                 <Popover content={content} >
                   <Avatar size="large" src={user?.headPortraits|| ''} /></Popover>

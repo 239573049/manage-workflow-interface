@@ -327,10 +327,10 @@ class RoleConfig extends React.Component<IProps, IState>{
         const [draggedItem] = userList.splice(sourceIndex, 1);
         userList.splice(destinationIndex, 0, draggedItem);
         var destination = userList[sourceIndex];
-        destination.index = sourceIndex;
+        destination.index = sourceIndex;//更新节点位置
         draggedItem.index = destinationIndex;
         //更新数据
-        roleConfig.UpdateRoleIndex([draggedItem, destination])
+        roleConfig.UpdateRoleIndex(userList)
         this.setState({
             role_list: userList,
         });
@@ -437,7 +437,7 @@ class RoleConfig extends React.Component<IProps, IState>{
                     </div><br />
                     <DragDropContext onDragEnd={this.onDragEnd}>
                         <div className="myModal">
-                            <Droppable droppableId="mymodal" direction="horizontal">
+                            <Droppable  droppableId="droppable">
                                 {(provided) => (
                                     <div
                                         className="modalList"

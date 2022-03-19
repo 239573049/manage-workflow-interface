@@ -4,6 +4,10 @@ import WorkflowTemplateApi from '../../../../../../apis/workflowTemplate'
 import WorkflowTemplate from "../../../../../../model/workFlow/workflowTemplate";
 import WorkflowNodeTemplate from '../../../../../../model/workFlow/workflowNodeTemplate'
 import './index.less'
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import WorkflowApprovalRole from "../../../../../../model/workFlow/WorkflowApprovalRole";
+import Role from "../../../../../../model/role/role";
+import roleApi from "../../../../../../apis/admin/roleConfig/index";
 const { confirm } = Modal;
 interface IState {
     tabData: {
@@ -18,10 +22,18 @@ interface IState {
         state: 'add' | 'put',
         initialValue: WorkflowTemplate | undefined
     },
-    tabNode:{
+    tabNode: {
         isVisible: boolean,
-        workflowTemplateId:string|undefined,
+        workflowTemplateId: string | undefined,
         initialValue: WorkflowNodeTemplate[] | undefined
+    }
+    workflowApprovalRole: {
+        isVisible: boolean,
+        workflowNodeTemplateId: string,
+        initialValue: WorkflowApprovalRole[] | undefined,
+        role: any[],
+        selectionRoleids: any[],
+        selectRoleIds:any[]
     }
 }
 interface IProps {
@@ -63,10 +75,10 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                         </span>
                         <span>
                             <Button onClick={() => {
-                                var {tabNode}=this.state;
-                                tabNode.isVisible=true;
-                                tabNode.workflowTemplateId=workflowTemplate.id;
-                                console.log(tabNode);
+                                var { tabNode } = this.state;
+                                tabNode.isVisible = true;
+                                tabNode.workflowTemplateId = workflowTemplate.id;
+                                this.GetWorkflowNodeTemplates(workflowTemplate.id!)
                                 this.setState({ tabNode })
                             }}>节点配置</Button>
                         </span>
@@ -78,6 +90,24 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
             }
         },
     ]
+    workNodeRole = [
+        {
+            title: '排序',
+            dataIndex: 'index',
+        },
+        {
+            title: '名称',
+            dataIndex: 'name',
+        },
+        {
+            title: '编号',
+            dataIndex: 'code',
+        },
+        {
+            title: '备注',
+            dataIndex: 'remark',
+        },
+    ];
     state: IState = {
         operateWorkflowTemplate: {
             isVisible: false,
@@ -93,13 +123,52 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
         },
         tabNode: {
             isVisible: false,
-            workflowTemplateId:'',
+            workflowTemplateId: '',
             initialValue: []
+        },
+        workflowApprovalRole: {
+            isVisible: false,
+            workflowNodeTemplateId: "",
+            initialValue: [],
+            role: [],
+            selectionRoleids: [],
+            selectRoleIds:[]
         }
+    }
+    /**
+     * 获取角色
+     */
+    GetUserMenuList() {
+        var { workflowApprovalRole } = this.state
+        roleApi.GetUserMenuList('')
+            .then((res: any) => {
+                if (res.data.statusCode === 200) {
+                    workflowApprovalRole.role = res.data.data;
+                    this.GetWorkflowNodeRoleIds(workflowApprovalRole.workflowNodeTemplateId)
+                    this.setState({ workflowApprovalRole })
+                }
+            })
     }
     componentDidMount() {
         this.getWorkflowTemplatePages()
     }
+    /**
+     * 获取模板节点数据
+     * @param workflowId 
+     */
+    GetWorkflowNodeTemplates(workflowId: string) {
+        var { tabNode } = this.state
+        WorkflowTemplateApi.GetWorkflowNodeTemplates(workflowId)
+            .then((res: any) => {
+                if (res.statusCode === 200) {
+                    tabNode.initialValue = res.data;
+                    this.setState({ tabNode })
+                }
+            })
+    }
+    /**
+     * 获取模板分页数据
+     */
     getWorkflowTemplatePages() {
         var { tabData } = this.state;
         WorkflowTemplateApi.GetWorkflowTemplatePage(tabData.name, tabData.pageNo, tabData.pageSize)
@@ -111,6 +180,10 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                 this.setState({ tabData })
             })
     }
+    /**
+     * 创建|编辑 模板
+     * @param value 
+     */
     createWorkflowTemplate(value: any) {
         var { operateWorkflowTemplate } = this.state
         if (operateWorkflowTemplate.state === 'add') {
@@ -129,6 +202,10 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                 })
         }
     }
+    /**
+     * 删除模板
+     * @param workflowTemplate 
+     */
     deleteWorkFlowTemplate(workflowTemplate: WorkflowTemplate) {
         confirm({
             title: '删除模板',
@@ -145,16 +222,95 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
             },
         });
     }
+    /**
+     * 显示添加模板
+     */
     onShowOperate() {
         var { operateWorkflowTemplate } = this.state
         operateWorkflowTemplate.isVisible = true;
-        operateWorkflowTemplate.initialValue=undefined
+        operateWorkflowTemplate.initialValue = undefined
         this.setState({ operateWorkflowTemplate })
         console.log(this);
 
     }
+    /**
+     * 节点拖动逻辑处理
+     * @param result 
+     * @returns 
+     */
+    onDragEnd = (result: any) => {
+        const sourceIndex = result.source.index;
+        if (result.destination == null) return;
+        const destinationIndex = result.destination.index;
+        if (sourceIndex === destinationIndex) {
+            return;
+        }
+        const { tabNode } = this.state;
+        const [draggedItem] = tabNode.initialValue!.splice(sourceIndex, 1);
+        tabNode.initialValue!.splice(destinationIndex, 0, draggedItem);
+        var destination = tabNode.initialValue![sourceIndex];
+        destination.code = sourceIndex;
+        draggedItem.code = destinationIndex;
+        this.setState({ tabNode });
+    }
+    /**
+     * 打开编辑节点角色弹框
+     * @param data 
+     */
+    updateWorkNodeRole(data: WorkflowNodeTemplate) {
+        var { workflowApprovalRole } = this.state
+        workflowApprovalRole.isVisible = true;
+        workflowApprovalRole.workflowNodeTemplateId = data.id
+        this.GetUserMenuList();
+        this.setState({ workflowApprovalRole })
+    }
+    /**
+     * 获取节点选择的角色id
+     */
+    GetWorkflowNodeRoleIds(workflowNodeId:string){
+        var { workflowApprovalRole } = this.state
+        WorkflowTemplateApi.GetWorkflowNodeRoleIds(workflowNodeId)
+            .then((res:any)=>{
+                if(res.statusCode===200){
+                    var roles=workflowApprovalRole.role.filter(a=>res.data.includes(a.id)).map(a=>workflowApprovalRole.role.indexOf(a)+1)//获取选择的序号
+                    
+                    workflowApprovalRole.selectionRoleids=roles;
+                    console.log(workflowApprovalRole.selectionRoleids);
+                    this.setState({workflowApprovalRole })
+                }
+            })
+    }
+    /**
+     * 节点选择角色变化数据
+     * @param data 
+     * @param d 
+     */
+    onWorkNodeRoleSelectChange = (data: any[],d:any) => {
+        var { workflowApprovalRole } = this.state
+        workflowApprovalRole.selectionRoleids = data;
+        workflowApprovalRole.selectRoleIds=d.map((a:any)=>a.id);
+        this.setState({ workflowApprovalRole })
+    }
+    /**
+     * 添加节点角色
+     */
+    onClickWorkNodeRole(){
+        var { workflowApprovalRole } = this.state
+        WorkflowTemplateApi.CreateWorkflowNodeRole(workflowApprovalRole.workflowNodeTemplateId,workflowApprovalRole.selectRoleIds)
+            .then((res:any)=>{
+                workflowApprovalRole.isVisible=false;
+                workflowApprovalRole.initialValue=undefined;
+                workflowApprovalRole.selectionRoleids=[];
+                workflowApprovalRole.workflowNodeTemplateId=''
+                this.setState({workflowApprovalRole})
+            })
+    }
     render(): React.ReactNode {
-        var { tabData, operateWorkflowTemplate,tabNode} = this.state
+        var { tabData, operateWorkflowTemplate, tabNode, workflowApprovalRole } = this.state
+        const rowSelection = {
+            selectedRowKeys: workflowApprovalRole.selectionRoleids,
+            onChange: this.onWorkNodeRoleSelectChange,
+        };
         return (
             <div className="workcontent">
                 <div className="condition">
@@ -200,11 +356,58 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                 </Modal>
                 <Modal
                     footer={[]}
-                    onCancel={() =>{tabNode.isVisible=false;tabNode.workflowTemplateId=''; this.setState({ tabNode})}
+                    onCancel={() => { tabNode.isVisible = false; tabNode.workflowTemplateId = ''; this.setState({ tabNode }) }
                     }
                     destroyOnClose
                     title="添加模板节点" visible={tabNode.isVisible}>
-                    
+                    <DragDropContext onDragEnd={this.onDragEnd}>
+                        <div className="myModal">
+                            <Droppable droppableId="droppable">
+                                {(provided) => (
+                                    <div
+                                        className="modalList"
+                                        ref={provided.innerRef}
+                                        {...provided.droppableProps}>
+                                        {tabNode.initialValue?.map((item, index) => (
+                                            <Draggable draggableId={item.id!} index={index} key={item.id}>
+                                                {(provided) => (
+                                                    <div
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}>
+                                                        <div className="work-node-config">
+                                                            <span className="node-span">
+                                                                审批顺序：
+                                                                {item.code}
+                                                            </span>
+                                                            <span className="node-span">
+                                                                节点备注：
+                                                                {item.remark}
+                                                            </span>
+                                                            <Button type="primary" className="nodebutton" onClick={() => this.updateWorkNodeRole(item)}>编辑角色</Button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        ))}
+                                        {provided.placeholder}
+                                    </div>
+                                )}
+                            </Droppable>
+                        </div>
+                    </DragDropContext>
+                </Modal>
+
+                <Modal
+                    onCancel={() => { workflowApprovalRole.isVisible = false; workflowApprovalRole.workflowNodeTemplateId = ''; this.setState({ workflowApprovalRole }) }
+                    }
+                    destroyOnClose
+                    onOk={()=>{this.onClickWorkNodeRole()}}
+                    title="添加模板节点" visible={workflowApprovalRole.isVisible}>
+                    <Table 
+                    pagination={false}
+                    key="id"
+                    rowSelection={rowSelection} columns={this.workNodeRole} dataSource={workflowApprovalRole.role} />
                 </Modal>
             </div>
         )
