@@ -6,6 +6,7 @@ import AdminApi from '../../apis/admin/index'
 import { Response } from '../../model/request/Api'
 import LoginApi from '../../apis/login/index';
 import PANE from '../menu';
+import { BellOutlined } from '@ant-design/icons';
 const { Header, Content, Footer, Sider } = Layout;
 const { TabPane } = Tabs;
 const { SubMenu } = Menu;
@@ -48,12 +49,12 @@ class Admin extends React.Component<IProps, IState> {
 
   add = (title: string, content: string, key: string) => {
     const panes = this.state.panes
-      const activeKey = panes && panes.find(a => a.key === key);
-    if (activeKey ) {
-      this.setState({ activeKey:activeKey.key });
+    const activeKey = panes && panes.find(a => a.key === key);
+    if (activeKey) {
+      this.setState({ activeKey: activeKey.key });
     } else {
       panes.push({ title: title, content: content, key: key });
-      this.setState({ panes:[...panes], activeKey:key });
+      this.setState({ panes: [...panes], activeKey: key });
     }
   };
 
@@ -83,8 +84,8 @@ class Admin extends React.Component<IProps, IState> {
       .then(res => {
         var data = res.data as Response<any[]>
         if (data.statusCode === 200) {
-          var menu=data.data[0];
-          this.add(menu.title,menu.component,menu.key)
+          var menu = data.data[0];
+          this.add(menu.title, menu.component, menu.key)
           this.setState({
             menu: this.getMenuNodes(data.data as never)
           })
@@ -120,7 +121,7 @@ class Admin extends React.Component<IProps, IState> {
         )
       } else {
         return (
-          <SubMenu key={item.key}  title={item.title}>
+          <SubMenu key={item.key} title={item.title}>
             {this.getMenuNodes(item.children)}
           </SubMenu>
         )
@@ -167,28 +168,30 @@ class Admin extends React.Component<IProps, IState> {
           <Header className="site-layout-background" style={{ padding: 0 }} >
             <div
               className='headPortraits'>
-              <span>
-                <Popover content={content} >
-                  <Avatar size="large" src={user?.headPortraits|| ''} /></Popover>
+              <span className='bell-outlined'>
+                <BellOutlined />
               </span>
               <span>
+                <Popover content={content} >
+                  <Avatar size="large" src={user?.headPortraits || ''} /></Popover>
+                  
                 {user?.name || ''}
               </span>
             </div>
           </Header>
-          <Content style={{ margin: '0 16px',height:'100%'}}>
+          <Content style={{ margin: '0 16px', height: '100%' }}>
             <Tabs
               hideAdd
               onChange={this.onChange}
               activeKey={this.state.activeKey}
               type="editable-card"
               onEdit={this.onEdit}
-              style={{height:'100%'}}
+              style={{ height: '100%' }}
             >
               {this.state.panes.map(pane => (
-                <TabPane tab={pane.title} key={pane.key} style={{height:'100%'}}>
-                  <Card hoverable  style={{height:'680px',overflow:"auto"}}>
-                  {PANE[pane.content]}
+                <TabPane tab={pane.title} key={pane.key} style={{ height: '100%' }}>
+                  <Card hoverable style={{ height: '680px', overflow: "auto" }}>
+                    {PANE[pane.content]}
                   </Card>
                 </TabPane>
               ))}

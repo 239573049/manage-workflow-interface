@@ -28,7 +28,7 @@ interface IState {
     }
     workflowApprovalRole: {
         isVisible: boolean,
-        workflowNodeTemplateId: string|undefined,
+        workflowNodeTemplateId: string | undefined,
         initialValue: WorkflowApprovalRole[] | undefined,
         role: any[],
         selectionRoleids: any[],
@@ -80,12 +80,12 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                         </span>
                         <span>
                             <Button onClick={() => {
-                                var { tabNode,addWorkflowNodeTemplate } = this.state;
+                                var { tabNode, addWorkflowNodeTemplate } = this.state;
                                 tabNode.isVisible = true;
                                 tabNode.workflowTemplateId = workflowTemplate.id;
-                                addWorkflowNodeTemplate.workflowTemplateId=workflowTemplate.id;
+                                addWorkflowNodeTemplate.workflowTemplateId = workflowTemplate.id;
                                 this.GetWorkflowNodeTemplates(workflowTemplate.id!)
-                                this.setState({ tabNode,addWorkflowNodeTemplate })
+                                this.setState({ tabNode, addWorkflowNodeTemplate })
                             }}>节点配置</Button>
                         </span>
                         <span>
@@ -144,18 +144,18 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
             isVisible: false,
             workflowTemplateId: undefined,
             state: "add",
-            initialValue:{
-                
-    index: undefined,
-    id:undefined,
-    workflowTemplateId:undefined,
-    code:undefined,
-    prevNodeId:undefined,
-    nextNodeId:undefined,
-    remark:undefined,
-    workflowTemplate:undefined,
-    WorkflowApprovalRole:[]
-                
+            initialValue: {
+
+                index: undefined,
+                id: undefined,
+                workflowTemplateId: undefined,
+                code: undefined,
+                prevNodeId: undefined,
+                nextNodeId: undefined,
+                remark: undefined,
+                workflowTemplate: undefined,
+                WorkflowApprovalRole: []
+
             }
         }
     }
@@ -273,13 +273,13 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
         const [draggedItem] = tabNode.initialValue!.splice(sourceIndex, 1);
         tabNode.initialValue!.splice(destinationIndex, 0, draggedItem);
         var destination = tabNode.initialValue![sourceIndex];
-        destination.code = sourceIndex+1;
-        draggedItem.code = destinationIndex+1;
+        destination.code = sourceIndex + 1;
+        draggedItem.code = destinationIndex + 1;
         console.log(tabNode.initialValue);
         WorkflowTemplateApi.UpdateWorkflowNodeTemplateIndex(tabNode.initialValue)
-            .then((res:any)=>{
-                if(res.statusCode===200){
-                    tabNode.initialValue=res.data;
+            .then((res: any) => {
+                if (res.statusCode === 200) {
+                    tabNode.initialValue = res.data;
                     this.setState({ tabNode });
                 }
             })
@@ -299,16 +299,16 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
      * 编辑模板
      * @param data 
      */
-    updateWorkNode(data: WorkflowNodeTemplate){
-        var {addWorkflowNodeTemplate}=this.state;
-        addWorkflowNodeTemplate.state="put";
-        addWorkflowNodeTemplate.initialValue=data;
-        addWorkflowNodeTemplate.isVisible=true;
-        addWorkflowNodeTemplate.workflowTemplateId=data.workflowTemplateId;
-        this.setState({addWorkflowNodeTemplate})
+    updateWorkNode(data: WorkflowNodeTemplate) {
+        var { addWorkflowNodeTemplate } = this.state;
+        addWorkflowNodeTemplate.state = "put";
+        addWorkflowNodeTemplate.initialValue = data;
+        addWorkflowNodeTemplate.isVisible = true;
+        addWorkflowNodeTemplate.workflowTemplateId = data.workflowTemplateId;
+        this.setState({ addWorkflowNodeTemplate })
     }
-    deleteWorkNode(data:WorkflowNodeTemplate){
-        var {addWorkflowNodeTemplate}=this.state;
+    deleteWorkNode(data: WorkflowNodeTemplate) {
+        var { addWorkflowNodeTemplate } = this.state;
         confirm({
             title: '删除用户',
             content: '您的操作将删除模板节点配置，请确认是否删除',
@@ -317,7 +317,7 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
             cancelText: '取消',
             onOk: () => {
                 WorkflowTemplateApi.DeleteWorkflowNodeTemplate(data.id!)
-                    .then((res:any) => {
+                    .then((res: any) => {
                         if (res.statusCode === 200) {
                             message.success("删除成功")
                             this.GetWorkflowNodeTemplates(addWorkflowNodeTemplate.workflowTemplateId!)
@@ -368,27 +368,27 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                 this.setState({ workflowApprovalRole })
             })
     }
-    saveWorkflowNode(value:any){
-        var {addWorkflowNodeTemplate}=this.state;
-        addWorkflowNodeTemplate.initialValue!.remark=value.remark;
-        if(addWorkflowNodeTemplate.state==='add'){
+    saveWorkflowNode(value: any) {
+        var { addWorkflowNodeTemplate } = this.state;
+        addWorkflowNodeTemplate.initialValue!.remark = value.remark;
+        if (addWorkflowNodeTemplate.state === 'add') {
             WorkflowTemplateApi.CreateWorkflowNodeTemplate(addWorkflowNodeTemplate.initialValue)
-            .then((res:any)=>{
-                if(res.statusCode===200){
-                    message.success("添加成功")
-                }
-                addWorkflowNodeTemplate.isVisible=false;
-                this.setState({addWorkflowNodeTemplate})
-                this.GetWorkflowNodeTemplates(addWorkflowNodeTemplate.workflowTemplateId!)
-            })
-        }else{
+                .then((res: any) => {
+                    if (res.statusCode === 200) {
+                        message.success("添加成功")
+                    }
+                    addWorkflowNodeTemplate.isVisible = false;
+                    this.setState({ addWorkflowNodeTemplate })
+                    this.GetWorkflowNodeTemplates(addWorkflowNodeTemplate.workflowTemplateId!)
+                })
+        } else {
             WorkflowTemplateApi.UpdateWorkflowNodeTemplate(addWorkflowNodeTemplate.initialValue)
-                .then((res:any)=>{
-                    if(res.statusCode===200){
+                .then((res: any) => {
+                    if (res.statusCode === 200) {
                         message.success("编辑成功")
                     }
-                    addWorkflowNodeTemplate.isVisible=false;
-                    this.setState({addWorkflowNodeTemplate})
+                    addWorkflowNodeTemplate.isVisible = false;
+                    this.setState({ addWorkflowNodeTemplate })
                     this.GetWorkflowNodeTemplates(addWorkflowNodeTemplate.workflowTemplateId!)
                 })
         }
@@ -449,7 +449,7 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                             onClick={() => {
                                 addWorkflowNodeTemplate.isVisible = true;
                                 addWorkflowNodeTemplate.state = 'add';
-                                addWorkflowNodeTemplate.initialValue.workflowTemplateId=addWorkflowNodeTemplate.workflowTemplateId
+                                addWorkflowNodeTemplate.initialValue.workflowTemplateId = addWorkflowNodeTemplate.workflowTemplateId
                                 this.setState({ addWorkflowNodeTemplate })
                             }}>添加节点</Button>
                     ]}
@@ -469,23 +469,29 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                                         {tabNode.initialValue?.map((item, index) => (
                                             <Draggable draggableId={item.id!} index={index} key={item.id}>
                                                 {(provided) => (
-                                                    <div
-                                                        className="work-node-config"
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}>
-                                                        <span className="node-span">
-                                                            审批顺序：
-                                                            {item.code}
-                                                        </span>
-                                                        <span className="node-span">
-                                                            备注：
-                                                            {item.remark}
-                                                        </span>
-                                                        <Button type="primary" className="nodebutton" onClick={() => this.updateWorkNodeRole(item)}>编辑角色</Button>
-                                                        <Button type="primary" className="nodebutton" onClick={() => this.deleteWorkNode(item)}>删除模板</Button>
-                                                        <Button type="primary" className="nodebutton" onClick={() => this.updateWorkNode(item)}>编辑模板</Button>
+                                                    <div>
 
+                                                        <div
+                                                            className="work-node-config"
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}>
+                                                            <span className="node-span">
+                                                                审批顺序：
+                                                                {item.code}
+                                                            </span>
+                                                            <span className="node-span">
+                                                                备注：
+                                                                {item.remark}
+                                                            </span>
+                                                            <Button type="primary" className="nodebutton" onClick={() => this.updateWorkNodeRole(item)}>编辑角色</Button>
+                                                            <Button type="primary" className="nodebutton" onClick={() => this.deleteWorkNode(item)}>删除模板</Button>
+                                                            <Button type="primary" className="nodebutton" onClick={() => this.updateWorkNode(item)}>编辑模板</Button>
+                                                            
+                                                        <div>
+                                                            ↓
+                                                        </div>
+                                                        </div>
                                                     </div>
                                                 )}
                                             </Draggable>
@@ -514,30 +520,30 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                 <Modal
                     footer={null}
                     onCancel={() => {
-                         addWorkflowNodeTemplate.isVisible = false; 
-                         addWorkflowNodeTemplate.initialValue.id=undefined;
-                         addWorkflowNodeTemplate.initialValue.remark=undefined;
-                         addWorkflowNodeTemplate.initialValue.workflowTemplateId=undefined;
-                         this.setState({ addWorkflowNodeTemplate }) 
-                        }
+                        addWorkflowNodeTemplate.isVisible = false;
+                        addWorkflowNodeTemplate.initialValue.id = undefined;
+                        addWorkflowNodeTemplate.initialValue.remark = undefined;
+                        addWorkflowNodeTemplate.initialValue.workflowTemplateId = undefined;
+                        this.setState({ addWorkflowNodeTemplate })
+                    }
                     }
                     destroyOnClose
                     onOk={() => { this.onClickWorkNodeRole() }}
-                    title={addWorkflowNodeTemplate.state==="add"?"添加节点":"编辑节点"} visible={addWorkflowNodeTemplate.isVisible}>
+                    title={addWorkflowNodeTemplate.state === "add" ? "添加节点" : "编辑节点"} visible={addWorkflowNodeTemplate.isVisible}>
                     <Form
                         name="addWorkflowNodeTemplate"
                         initialValues={addWorkflowNodeTemplate.initialValue}
                         onFinish={this.saveWorkflowNode.bind(this)}
                     >
-                    <Form.Item
-                        label="备注"
-                        name="remark"
-                        rules={[{ required: true, message: '请填写备注' }]}
-                    >
-                        <Input />
-                    </Form.Item>
+                        <Form.Item
+                            label="备注"
+                            name="remark"
+                            rules={[{ required: true, message: '请填写备注' }]}
+                        >
+                            <Input />
+                        </Form.Item>
                         <Form.Item >
-                            <Button type="primary"  name="id" htmlType="submit" style={{width:'100%'}}>
+                            <Button type="primary" name="id" htmlType="submit" style={{ width: '100%' }}>
                                 保存
                             </Button>
                         </Form.Item>
