@@ -191,7 +191,7 @@ class Admin extends React.Component<IProps, IState> {
                   {PANE[pane.content]}
                   </Card>
                 </TabPane>
-              ))}x
+              ))}
             </Tabs>
           </Content>
           <Footer style={{ textAlign: 'center' }}>Token ©2022 </Footer>

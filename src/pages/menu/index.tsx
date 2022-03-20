@@ -11,8 +11,13 @@ interface IMenu {
 }
 
 const Menu: IMenu =  {
-    Work: <Work />, Home: <Home />, User: <User />,
-     WorkConfig: <WorkConfig />, Error404: <Error404 />, RoleConfig: <RoleConfig />, UserConfig: <UserConfig />
+    Work: <Work />, 
+    Home: <Home />,
+     User: <User />,
+     WorkConfig: <WorkConfig />, 
+     Error404: <Error404 />, 
+     RoleConfig: <RoleConfig />, 
+     UserConfig: <UserConfig />
 }
 
 export default Menu;

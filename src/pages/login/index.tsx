@@ -8,7 +8,7 @@ import './index.less'
 import {encryptByDES} from '../../utils/des/des'
 const { Footer,  Content } = Layout;
 class Login extends React.Component{
-    onFinish = (values: LoginVM) => {
+    onFinish(values: LoginVM) {
         values.password=encryptByDES(values.password!)
         LoginApi.Login(values)
             .then((res)=>{
@@ -24,15 +24,12 @@ class Login extends React.Component{
     render(): React.ReactNode {
         return (
             <div className='Login_div'>
-                
-            <Layout>
+            <Layout >
                 <Content>
                     <Row>
                         <Col xs={2} sm={4} md={6} lg={8} xl={10}>
-    
                         </Col>
                         <Col xs={20} sm={16} md={12} lg={8} xl={4}>
-    
                             <div className='Login ContentLogin'>
                                 <div className='Title'>Token管理系统</div>
                                 <Form
