@@ -90,5 +90,11 @@ class WorkflowTemplateApi extends Axios{
     UpdateWorkflowNodeTemplateIndex(data:any){
         return this.put("WorkflowTemplate/UpdateWorkflowNodeTemplateIndex",data)
     }
+    /***
+     * 获取所有模板
+     */
+    GetWorkflowTemplatesAll(){
+        return this.get("WorkflowTemplate/GetWorkflowTemplatesAll")
+    }
 }
 export default new WorkflowTemplateApi()

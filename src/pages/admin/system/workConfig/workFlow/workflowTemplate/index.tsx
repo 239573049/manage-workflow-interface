@@ -470,7 +470,6 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                                             <Draggable draggableId={item.id!} index={index} key={item.id}>
                                                 {(provided) => (
                                                     <div>
-
                                                         <div
                                                             className="work-node-config"
                                                             ref={provided.innerRef}
@@ -487,10 +486,6 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
                                                             <Button type="primary" className="nodebutton" onClick={() => this.updateWorkNodeRole(item)}>编辑角色</Button>
                                                             <Button type="primary" className="nodebutton" onClick={() => this.deleteWorkNode(item)}>删除模板</Button>
                                                             <Button type="primary" className="nodebutton" onClick={() => this.updateWorkNode(item)}>编辑模板</Button>
-                                                            
-                                                        <div>
-                                                            ↓
-                                                        </div>
                                                         </div>
                                                     </div>
                                                 )}

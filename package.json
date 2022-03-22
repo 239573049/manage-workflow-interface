@@ -11,6 +11,7 @@
     "@ant-design/pro-list": "^1.21.31",
     "@ant-design/pro-skeleton": "^1.0.5",
     "@ant-design/pro-table": "^2.64.1",
+    "@antv/g6": "^4.6.4",
     "@babel/core": "^7.16.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@svgr/webpack": "^5.5.0",
