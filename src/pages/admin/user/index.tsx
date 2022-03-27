@@ -6,7 +6,7 @@ import UserInfoApi from '../../../apis/userInfo/userInfo'
 import moment from "moment";
 import { UserInfo } from "../../../model/userInfo/userInfo";
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import roleConfigApi from "../../../apis/admin/roleConfig";
+// import roleConfigApi from "../../../apis/admin/roleConfig";
 import { encryptByDES } from '../../../utils/des/des'
 const { Option } = Select;
 const { confirm } = Modal;
