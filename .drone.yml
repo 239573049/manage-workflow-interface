@@ -36,7 +36,7 @@ steps:
       # - docker rm $(docker ps -a | grep "Exited" | awk '{print $1 }')
       # - docker rmi $(docker images | grep "none" | awk '{print $3}')
       - docker run -d -p 8001:80 --name managementweb managementweb:latest
-      - docker cp managementweb:/var/www/ /root/managementweb
+      - docker cp managementweb:/var/www/ /home/ubuntu/managementweb
 volumes:
   - name: dockersock
     host:
