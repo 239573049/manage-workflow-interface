@@ -37,7 +37,7 @@ steps:
       # - docker rmi $(docker images | grep "none" | awk '{print $3}')
       - docker run -d -p 8081:80 --name managementweb managementweb:latest
       - docker cp managementweb:/var/www/ /root/managementweb
-    volumes:
-      - name: dockersock
-        host:
-          path: /var/run/docker.sock
+  volumes:
+    - name: dockersock
+      host:
+        path: /var/run/docker.sock
