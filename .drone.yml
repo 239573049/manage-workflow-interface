@@ -30,14 +30,12 @@ steps:
       - name: dockersock
         path: /var/run/docker.sock
     commands:
-      # - docker stop managementweb 
-      # - docker rm managementweb
-      # - docker stop $(docker ps -a | grep "Exited" | awk '{print $1 }')
-      # - docker rm $(docker ps -a | grep "Exited" | awk '{print $1 }')
-      # - docker rmi $(docker images | grep "none" | awk '{print $3}')
+      - docker stop managementweb 
+      - docker rm managementweb
       - docker run -d -p 8001:80 --name managementweb managementweb:latest
-      - docker cp managementweb:/var/www/ /home/ubuntu/managementweb
+      - docker cp managementweb:/var/www/ /var/www
 volumes:
   - name: dockersock
     host:
       path: /var/run/docker.sock
+      path: /var/www
