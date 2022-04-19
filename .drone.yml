@@ -19,7 +19,7 @@ steps:
         path: /var/run/docker.sock
     commands:
       - docker build -f Dockerfile -t managementweb .
-  - name: push
+  - name: cp
     when:
       branch:
         - master
