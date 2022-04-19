@@ -19,7 +19,6 @@ steps:
         path: /var/run/docker.sock
     commands:
       - docker build -f Dockerfile -t managementweb .
-      - docker cp managementweb:/var/www/ /root/managementweb
   - name: push
     when:
       branch:
@@ -36,7 +35,8 @@ steps:
       # - docker stop $(docker ps -a | grep "Exited" | awk '{print $1 }')
       # - docker rm $(docker ps -a | grep "Exited" | awk '{print $1 }')
       # - docker rmi $(docker images | grep "none" | awk '{print $3}')
-      - docker run -d -p 8081:80 --name managementweb managementweb:latest 
+      - docker run -d -p 8081:80 --name managementweb managementweb:latest
+      - docker cp managementweb:/var/www/ /root/managementweb
 volumes:
   - name: dockersock
     host:
