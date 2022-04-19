@@ -1,0 +1,43 @@
+kind: pipeline
+name: api
+type: docker
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: pack
+    when:
+      branch:
+        - master
+    image: docker:dind
+    environment:
+      IMAGE: managementweb
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - docker build -f Dockerfile -t managementweb .
+      - docker cp managementweb:/var/www/ /root/managementweb
+  - name: push
+    when:
+      branch:
+        - master
+    image: docker:dind
+    environment:
+      IMAGE: managementweb
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      # - docker stop managementweb 
+      # - docker rm managementweb
+      # - docker stop $(docker ps -a | grep "Exited" | awk '{print $1 }')
+      # - docker rm $(docker ps -a | grep "Exited" | awk '{print $1 }')
+      # - docker rmi $(docker images | grep "none" | awk '{print $3}')
+      - docker run -d -p 8081:80 --name managementweb managementweb:latest 
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
