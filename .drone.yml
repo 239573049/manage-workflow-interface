@@ -1,0 +1,47 @@
+kind: pipeline
+name: management
+type: docker
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: pack
+    when:
+      branch:
+        - master
+    image: docker:dind
+    environment:
+      IMAGE: management
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - docker build -f Management.WebApi/Dockerfile -t management .
+  - name: push
+    when:
+      branch:
+        - master
+    image: docker:dind
+    environment:
+      IMAGE: management
+      DOCKERUSER:
+        from_secret: hejiale010426
+      DOCKERPWD:
+        from_secret: hejiale010426
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - export datetag=$(date +%Y-%m-%d-%H-%M)
+      - export dockerorigin=docker.cn
+      - docker login -u $DOCKERUSER -p $DOCKERPWD
+      - docker tag $IMAGE $dockerorigin/$IMAGE
+      - docker tag $IMAGE $dockerorigin/$IMAGE:$datetag
+      - docker push $dockerorigin/$IMAGE
+      - docker push $dockerorigin/$IMAGE:$datetag
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
