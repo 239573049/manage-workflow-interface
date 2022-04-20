@@ -13,7 +13,7 @@ steps:
         - master
     image: docker:dind
     environment:
-      IMAGE: management
+      IMAGE: managementweb
     volumes:
       - name: dockersock
         path: /var/run/docker.sock
@@ -25,23 +25,17 @@ steps:
         - master
     image: docker:dind
     environment:
-      IMAGE: management
-      DOCKERUSER:
-        from_secret: hejiale010426
-      DOCKERPWD:
-        from_secret: hejiale010426
+      IMAGE: managementweb
     volumes:
       - name: dockersock
         path: /var/run/docker.sock
     commands:
-      - export datetag=$(date +%Y-%m-%d-%H-%M)
-      - export dockerorigin=docker.cn
-      - docker login -u $DOCKERUSER -p $DOCKERPWD
-      - docker tag $IMAGE $dockerorigin/$IMAGE
-      - docker tag $IMAGE $dockerorigin/$IMAGE:$datetag
-      - docker push $dockerorigin/$IMAGE
-      - docker push $dockerorigin/$IMAGE:$datetag
+      - docker stop managementweb 
+      - docker rm managementweb
+      - docker run -d -p 8001:80 --name managementweb managementweb:latest
+      - docker cp managementweb:/var/www/ /var/www
 volumes:
   - name: dockersock
     host:
       path: /var/run/docker.sock
+      path: /var/www
