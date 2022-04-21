@@ -7,7 +7,7 @@ platform:
   arch: amd64
 
 steps:
-  - name: pack
+  - name: docker
     when:
       branch:
         - master
@@ -18,7 +18,24 @@ steps:
       - name: dockersock
         path: /var/run/docker.sock
     commands:
-      - docker-compose up -d 
+      - docker build -f Dockerfile -t managementweb .
+  - name: pack
+    when:
+      branch:
+        - master
+    image: docker:dind
+    environment:
+      IMAGE: managementweb
+      NGINX_PORT: 80
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+      - name: html
+        path: /data/front:/usr/share/nginx/html
+      - name: logs
+        path:  /usr/local/nginx/logs:/var/log/nginx
+      - name: nginx
+        path:  /usr/local/nginx:/etc/nginx/
 volumes:
   - name: dockersock
     host:
