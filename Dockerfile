@@ -8,3 +8,5 @@ RUN npm run build
 FROM nginx AS managementweb
 WORKDIR /var/www
 COPY --from=build /src/build /var/www
+
+
