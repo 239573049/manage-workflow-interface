@@ -29,7 +29,7 @@ steps:
     volumes:
       - name: dockersock
         path: /var/run/docker.sock
-      - name: www
+      - name: wwwroot
         path: /var/www
     commands:
       - docker run -d -p 8001:80 --name managementweb managementweb:latest
