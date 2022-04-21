@@ -19,6 +19,9 @@ steps:
     commands:
       - docker build -f Dockerfile -t managementweb .
   - name: pack
+    when:
+      branch:
+        - master
     image: managementweb
     environment:
       IMAGE: managementweb
