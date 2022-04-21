@@ -18,7 +18,7 @@ steps:
       - name: dockersock
         path: /var/run/docker.sock
     commands:
-      - docker build -f Management.WebApi/Dockerfile -t management .
+      - docker build -f Dockerfile -t managementweb .
   - name: push
     when:
       branch:
