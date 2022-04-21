@@ -21,7 +21,7 @@ steps:
       - docker stop managementweb
       - docker rm managementweb
       - docker build -f Dockerfile -t managementweb .
-      - docker run -d -p 8088:80  -v /usr/local/nginx:/etc/nginx/ -v /usr/local/nginx/logs:/var/log/nginx --name managementweb managementweb
+      - docker run -d -p 8088:80  -v /usr/local/nginx:/etc/nginx/ -v /usr/local/nginx/logs:/var/log/nginx --name managementweb managementweb 
 volumes:
   - name: dockersock
     host:
