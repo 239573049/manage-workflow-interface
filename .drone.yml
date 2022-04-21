@@ -32,8 +32,6 @@ steps:
       - name: www
         path: /var/www
     commands:
-      - docker stop managementweb 
-      - docker rm managementweb
       - docker run -d -p 8001:80 --name managementweb managementweb:latest
       - docker cp managementweb:/var/www/ /var/www
 volumes:
