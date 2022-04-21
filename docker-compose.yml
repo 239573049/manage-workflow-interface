@@ -1,23 +1,17 @@
 version: '3'
 services:
-  node:
+  managementweb:
     build: ./
-    container_name: manageweb
-    ports:
-      - 11:80
-    command: 'docker cp manageweb:/var/www/ /var/www'
-  nginx:
     restart: always
-    container_name: nginx_manageweb
-    image: nginx
+    container_name: managementweb
+    image: managementweb
     ports:
-    - 81:80
-    - 1243:443
+    - 80:80
+    - 443:443
     volumes:
     - /data/front:/usr/share/nginx/html
-    - /root/manage-workflow-interface/build:/var/www
-    - /usr/local/nginx/logs:/var/log/nginx
-    - /usr/local/nginx:/etc/nginx/
+    - /root/nginx/logs:/var/log/nginx
+    - /root/nginx:/etc/nginx/
     environment:
     - NGINX_PORT=80
     privileged: true

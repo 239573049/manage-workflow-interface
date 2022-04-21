@@ -18,24 +18,8 @@ steps:
       - name: dockersock
         path: /var/run/docker.sock
     commands:
-      - docker build -f Dockerfile -t managementweb .
-  - name: cp
-    when:
-      branch:
-        - master
-    image: docker:dind
-    environment:
-      IMAGE: managementweb
-    volumes:
-      - name: dockersock
-        path: /var/run/docker.sock
-    commands:
-      - docker stop managementweb 
-      - docker rm managementweb
-      - docker run -d -p 8001:80 --name managementweb managementweb:latest
-      - docker cp managementweb:/var/www/ /var/www
+      - docker-compose up -d 
 volumes:
   - name: dockersock
     host:
       path: /var/run/docker.sock
-      path: /var/www
