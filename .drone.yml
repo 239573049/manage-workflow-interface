@@ -5,24 +5,13 @@ type: docker
 platform:
   os: linux
   arch: amd64
+
 steps:
-  - name: docker
-    when:
-      branch:
-        - master
-    image: docker:dind
-    environment:
-      IMAGE: managementweb
-    volumes:
-      - name: dockersock
-        path: /var/run/docker.sock
-    commands:
-      - docker build -f Dockerfile -t managementweb .
   - name: pack
     when:
       branch:
         - master
-    image: managementweb
+    image: docker:dind
     environment:
       IMAGE: managementweb
       NGINX_PORT: 80
