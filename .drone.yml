@@ -19,10 +19,7 @@ steps:
     commands:
       - docker build -f Dockerfile -t managementweb .
   - name: pack
-    when:
-      branch:
-        - master
-    image: docker:dind
+    image: managementweb
     environment:
       IMAGE: managementweb
       NGINX_PORT: 80
