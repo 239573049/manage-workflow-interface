@@ -7,6 +7,18 @@ platform:
   arch: amd64
 
 steps:
+  - name: pack
+    when:
+      branch:
+        - master
+    image: docker:dind
+    environment:
+      IMAGE: managementweb
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - docker build -f Dockerfile -t managementweb .
   - name: build
     when:
       branch:
@@ -18,16 +30,9 @@ steps:
       - name: dockersock
         path: /var/run/docker.sock
       - name: manageweb
-        path: /root/www/manageweb/:/src/build
-      - name: node 
+        path: /root/www/manageweb/:/var/build
+      - name: node
         path: /root/node/manageweb/:/src/node_modules
-    commands:
-      # - docker stop managementweb
-      # - docker rm managementweb
-      - docker build -f Dockerfile -t managementweb .
-      - docker run  -v /root/www/manageweb/:/src/build -v /root/node/manageweb/:/src/node_modules --name managementweb managementweb 
-      - docker exec -it managementweb /bin/sh ./build.sh
-      - docker rm managementweb 
 volumes:
   - name: dockersock
     host:
