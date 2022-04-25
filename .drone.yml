@@ -1,5 +1,5 @@
 kind: pipeline
-name: management
+name: managementweb
 type: docker
 
 platform:
@@ -8,6 +8,18 @@ platform:
 
 steps:
   - name: pack
+    when:
+      branch:
+        - master
+    image: docker:dind
+    environment:
+      IMAGE: managementweb
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - docker build -f Dockerfile -t managementweb .
+  - name: build
     when:
       branch:
         - master
