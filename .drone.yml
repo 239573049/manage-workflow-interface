@@ -34,7 +34,7 @@ steps:
       - name: node
         path: /root/node/manageweb/:/src/node_modules
     commands:
-      - npm i &&npm run build
+      - dir
       # - docker stop managementweb
       # - docker rm managementweb
       # - docker build -f Dockerfile -t managementweb .
