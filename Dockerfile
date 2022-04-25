@@ -1,3 +1,3 @@
-FROM node:slim AS web
+FROM node:slim AS managementweb
 WORKDIR /src
 COPY ./ /src

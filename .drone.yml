@@ -19,7 +19,7 @@ steps:
         path: /var/run/docker.sock
       - name: manageweb
         path: /root/www/manageweb/:/src/build
-      - name: node
+      - name: node 
         path: /root/node/manageweb/:/src/node_modules
     commands:
       # - docker stop managementweb
