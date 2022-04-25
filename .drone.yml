@@ -27,7 +27,7 @@ steps:
       - docker build -f Dockerfile -t managementweb .
       - docker run  -v /root/www/manageweb/:/src/build -v /root/node/manageweb/:/src/node_modules --name managementweb managementweb 
       - docker exec -it managementweb /bin/sh ./build.sh
-      - docker rm managementweb
+      - docker rm managementweb 
 volumes:
   - name: dockersock
     host:
