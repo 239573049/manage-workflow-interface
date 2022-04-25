@@ -17,11 +17,16 @@ steps:
     volumes:
       - name: dockersock
         path: /var/run/docker.sock
+      - name: manageweb
+        path: /root/www/manageweb/:/var/build
+      - name: node
+        path: /root/node/manageweb/:/src/node_modules
     commands:
-      - docker stop managementweb
-      - docker rm managementweb
-      - docker build -f Dockerfile -t managementweb .
-      - docker run -d -p 8088:80  -v /usr/local/nginx:/etc/nginx/ -v /usr/local/nginx/logs:/var/log/nginx --name managementweb managementweb 
+      - /bin/bash -c "npm i &&npm run build"
+      # - docker stop managementweb
+      # - docker rm managementweb
+      # - docker build -f Dockerfile -t managementweb .
+      # - docker run -d -p 8088:80  -v /usr/local/nginx:/etc/nginx/ -v /usr/local/nginx/logs:/var/log/nginx --name managementweb managementweb 
 volumes:
   - name: dockersock
     host:
