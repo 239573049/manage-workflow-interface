@@ -1,17 +1,14 @@
 version: '3'
 services:
-  managementweb:
+  web:
     build: ./
     restart: always
-    container_name: managementweb
-    image: managementweb
-    ports:
-    - 80:80
-    - 443:443
+    container_name: web
+    image: web
     volumes:
-    - /data/front:/usr/share/nginx/html
-    - /root/nginx/logs:/var/log/nginx
-    - /root/nginx:/etc/nginx/
-    environment:
-    - NGINX_PORT=80
-    privileged: true
+      - /root/html/:/src/build
+      - /root/node/web/:/src/node_modules
+    ports:
+      - 80:80
+      - 443:443
+    command: /bin/bash -c "npm i &&npm run build"
