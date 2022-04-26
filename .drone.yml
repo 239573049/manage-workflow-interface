@@ -17,9 +17,6 @@ steps:
     commands:
       - docker build -f Dockerfile -t managementweb .
   - name: run
-    when:
-      branch:
-        - master
     image: managementweb
     commands:
       - npm i && npm run build
