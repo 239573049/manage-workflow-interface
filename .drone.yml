@@ -14,13 +14,15 @@ steps:
     image: docker:dind
     environment:
       IMAGE: managementweb
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
     commands:
       - "docker build -f Dockerfile -t managementweb ."
   - name: run
     image: managementweb
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
     commands:
       - npm i && npm run build
-volumes:
-  - name: dockersock
-    host:
-      path: /var/run/docker.sock
