@@ -15,7 +15,7 @@ steps:
     environment:
       IMAGE: managementweb
     commands:
-      - docker build -f Dockerfile -t managementweb .
+      - "docker build -f Dockerfile -t managementweb ."
   - name: run
     image: managementweb
     commands:
