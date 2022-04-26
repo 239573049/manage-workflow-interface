@@ -12,8 +12,8 @@ steps:
     image: node:slim
     depends_on: [clone]
     volumes:
-      - name: modules
-        path: /root/node/modules:/drone/src/node_modules
+      - name: node_modules
+        path: /root/node/node_modules:/drone/src/node_modules
       - name: build
         path: /root/www/manageweb:/drone/src/build
     commands:
@@ -24,9 +24,9 @@ volumes:
   - name: dockersock
     host:
       path: /var/run/docker.sock
-  - name: modules
+  - name: node_modules
     host:
-      path: /root/node/modules:/drone/src/node_modules
+      path: /root/node/node_modules:/drone/src/node_modules
   - name: build
     host:
       path: /root/www/manageweb:/drone/src/build
