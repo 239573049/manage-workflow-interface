@@ -26,7 +26,7 @@ volumes:
       path: /var/run/docker.sock
   - name: node_modules
     host:
-      path: /root/node/node_modules
+      path: /root/node/manageweb/node_modules
   - name: build
     host:
       path: /root/www/manageweb
