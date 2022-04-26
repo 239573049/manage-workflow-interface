@@ -30,7 +30,7 @@ steps:
       - name: dockersock
         path: /var/run/docker.sock
     commands:
-      - exec npm i && npm run build
+      - " npm i"
 volumes:
   - name: dockersock
     host:
