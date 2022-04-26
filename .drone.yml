@@ -13,9 +13,9 @@ steps:
     depends_on: [clone]
     volumes:
       - name: node_modules
-        path: /root/node/node_modules:/drone/src/node_modules
+        path: /drone/src/node_modules
       - name: build
-        path: /root/www/manageweb:/drone/src/build
+        path: /drone/src/build
     commands:
       - npm config set registry https://registry.npm.taobao.org # 切换淘宝镜像
       - "npm i && npm run build"
@@ -26,7 +26,7 @@ volumes:
       path: /var/run/docker.sock
   - name: node_modules
     host:
-      path: /root/node/node_modules:/drone/src/node_modules
+      path: /root/node/node_modules
   - name: build
     host:
-      path: /root/www/manageweb:/drone/src/build
+      path: /root/www/manageweb
