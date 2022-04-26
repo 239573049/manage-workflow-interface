@@ -11,16 +11,18 @@ steps:
     when:
       branch:
         - master
-    image: managementweb
+    image: docker:dind
     environment:
       IMAGE: managementweb
     volumes:
       - name: dockersock
         path: /var/run/docker.sock
       - name: manageweb
-        path: /root/www/manageweb/:/src/build
+        path: /root/www/manageweb/:/var/build
       - name: node
         path: /root/node/manageweb/:/src/node_modules
+    commands:
+      - docker build -f Dockerfile -t managementweb .
 volumes:
   - name: dockersock
     host:
