@@ -21,6 +21,8 @@ steps:
       - "docker build -f Dockerfile -t managementweb ."
   - name: run
     image: managementweb
+    environment:
+      IMAGE: managementweb
     volumes:
       - name: dockersock
         path: /var/run/docker.sock
