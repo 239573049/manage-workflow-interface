@@ -8,7 +8,7 @@ platform:
 
 steps:
   - name: build
-    image: node
+    image: node:slim
     depends_on: [clone]
     commands:
       - "npm i && npm run build"
