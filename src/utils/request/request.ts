@@ -17,7 +17,7 @@ instance.interceptors.request.use(
   (request) => {
     const token = window.sessionStorage.getItem('token') ;
     request.headers = {
-      Authorization: token!,
+      Authorization:'Bearer '+ token!,
     };
     return request;
   },
