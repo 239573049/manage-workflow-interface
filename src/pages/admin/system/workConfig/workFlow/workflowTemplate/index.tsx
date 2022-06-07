@@ -166,8 +166,8 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
         var { workflowApprovalRole } = this.state
         roleApi.GetUserMenuList('')
             .then((res: any) => {
-                if (res.data.statusCode === 200) {
-                    workflowApprovalRole.role = res.data.data;
+                if (res.code === 200) {
+                    workflowApprovalRole.role = res.data;
                     this.GetWorkflowNodeRoleIds(workflowApprovalRole.workflowNodeTemplateId!)
                     this.setState({ workflowApprovalRole })
                 }
@@ -184,10 +184,9 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
         var { tabNode } = this.state
         WorkflowTemplateApi.GetWorkflowNodeTemplates(workflowId)
             .then((res: any) => {
-                if (res.statusCode === 200) {
-                    tabNode.initialValue = res.data;
-                    this.setState({ tabNode })
-                }
+                console.log(res);
+                tabNode.initialValue = res;
+                this.setState({ tabNode })
             })
     }
     /**
@@ -197,10 +196,8 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
         var { tabData } = this.state;
         WorkflowTemplateApi.GetWorkflowTemplatePage(tabData.name, tabData.pageNo, tabData.pageSize)
             .then((res: any) => {
-                var data = res.data;
-                console.log(data);
-                tabData.data = data.data
-                tabData.count = data.count
+                tabData.data = res.data
+                tabData.count = res.count
                 this.setState({ tabData })
             })
     }
@@ -278,7 +275,7 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
         console.log(tabNode.initialValue);
         WorkflowTemplateApi.UpdateWorkflowNodeTemplateIndex(tabNode.initialValue)
             .then((res: any) => {
-                if (res.statusCode === 200) {
+                if (res.code === 200) {
                     tabNode.initialValue = res.data;
                     this.setState({ tabNode });
                 }
@@ -318,7 +315,7 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
             onOk: () => {
                 WorkflowTemplateApi.DeleteWorkflowNodeTemplate(data.id!)
                     .then((res: any) => {
-                        if (res.statusCode === 200) {
+                        if (res.code === 200) {
                             message.success("删除成功")
                             this.GetWorkflowNodeTemplates(addWorkflowNodeTemplate.workflowTemplateId!)
                         } else {
@@ -335,12 +332,10 @@ class WorkflowTemplateConfig extends React.Component<IProps, IState>{
         var { workflowApprovalRole } = this.state
         WorkflowTemplateApi.GetWorkflowNodeRoleIds(workflowNodeId)
             .then((res: any) => {
-                if (res.statusCode === 200) {
-                    var roles = workflowApprovalRole.role.filter(a => res.data.includes(a.id)).map(a => workflowApprovalRole.role.indexOf(a) + 1)//获取选择的序号
-                    workflowApprovalRole.selectionRoleids = roles;
-                    console.log(workflowApprovalRole.selectionRoleids);
-                    this.setState({ workflowApprovalRole })
-                }
+                var roles = workflowApprovalRole.role.filter(a => res.includes(a.id)).map(a => workflowApprovalRole.role.indexOf(a) + 1)//获取选择的序号
+                workflowApprovalRole.selectionRoleids = roles;
+                console.log(workflowApprovalRole.selectionRoleids);
+                this.setState({ workflowApprovalRole })
             })
     }
     /**

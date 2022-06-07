@@ -13,10 +13,10 @@ const { confirm } = Modal;
 const { RangePicker } = DatePicker;
 interface IState {
     condition: {
-        code: string | undefined,
+        keyword: string | '',
         startTime: string | undefined,
         endTime: string | undefined,
-        statue: number,
+        status: number|'',
         pageNo: number,
         pageSize: number
     },
@@ -35,12 +35,12 @@ interface IProps {
 }
 
 class UserAdmin extends React.Component<IProps, IState> {
-    state = {
+    state:IState = {
         condition: {
-            code: '',
+            keyword: '',
             startTime: '',
             endTime: '',
-            statue: -1,
+            status: '',
             pageNo: 1,
             pageSize: 10
         },
@@ -77,7 +77,7 @@ class UserAdmin extends React.Component<IProps, IState> {
         },
         {
             title: '账号状态',
-            dataIndex: 'statueName',
+            dataIndex: 'statusName',
         },
         {
             title: '手机号',
@@ -126,7 +126,7 @@ class UserAdmin extends React.Component<IProps, IState> {
 
     userstatueChange(e: number) {
         var { condition } = this.state
-        condition.statue = e;
+        condition.status = e;
         this.setState({
             condition
         })
@@ -134,9 +134,11 @@ class UserAdmin extends React.Component<IProps, IState> {
 
     UserApi() {
         var { condition } = this.state
-        UserInfoApi.GetUserInfoPaging(condition.code, condition.startTime, condition.endTime, condition.statue, condition.pageNo, condition.pageSize)
+        UserInfoApi.GetUserInfoPaging(condition.keyword, condition.startTime, condition.endTime, condition.status, condition.pageNo, condition.pageSize)
             .then(res => {
-                var data = res.data.data;
+                var data = res.data;
+                console.log(data);
+                
                 this.setState({ userInfoData: { data: data.data, count: data.count } })
             })
     }
@@ -172,16 +174,15 @@ class UserAdmin extends React.Component<IProps, IState> {
     onAddUserInfoClick(value: any) {
         value.password = encryptByDES(value.password);
         UserInfoApi.CreateUserInfo(value)
-            .then(res => {
-                var data = res.data;
-                if (data.statusCode === 200) {
+            .then((res:any) => {
+                if (res.code === 200) {
                     message.success('添加成功')
                     var {modalModel}=this.state;
                     modalModel.isAddUserInfo=false
                     this.setState({ modalModel })
                     this.UserApi()
                 } else {
-                    message.error(data.message)
+                    message.error(res.message)
                 }
             })
     }
@@ -227,7 +228,7 @@ class UserAdmin extends React.Component<IProps, IState> {
                     <span>
                         用户名称：<Input onChange={(e) => {
                             var { condition } = this.state
-                            condition.code = e.target.value
+                            condition.keyword = e.target.value
                             this.setState({ condition })
                         }} style={{ width: '200px' }} />
                     </span>

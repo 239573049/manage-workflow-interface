@@ -1,8 +1,8 @@
 import { UserInfo } from "../../model/userInfo/userInfo";
 import instance from "../../utils/request/request";
 class UserApi{
-    GetUserInfoPaging(code:string,startTime:string|undefined,endTime:string|undefined,statue:number,pageNo:number,pageSize:number){
-        return instance.get(`UserInfo/GetUserInfoPaging?code=${code}&startTime=${startTime}&endTime=${endTime}&statue=${statue}&pageNo=${pageNo}&pageSize=${pageSize}`)
+    GetUserInfoPaging(keyword:string|'',startTime:string|undefined,endTime:string|undefined,status:number|'',pageNo:number,pageSize:number){
+        return instance.get(`UserInfo/GetUserInfoPaging?keyword=${keyword}&startTime=${startTime}&endTime=${endTime}&status=${status}&pageNo=${pageNo}&pageSize=${pageSize}`)
     }
     CreateUserInfo(userInfo:UserInfo){
         return instance.post('UserInfo/CreateUserInfo',userInfo)

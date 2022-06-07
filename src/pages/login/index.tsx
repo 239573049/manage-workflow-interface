@@ -11,11 +11,13 @@ class Login extends React.Component{
     onFinish(values: LoginVM) {
         values.password=encryptByDES(values.password!)
         LoginApi.Login(values)
-            .then((res)=>{
-                var response=res.data as Response<LoginUserInfo>;
-                if(response.statusCode===200){
-                    window.sessionStorage.setItem("token",response.data.token!)
-                    window.sessionStorage.setItem("user",JSON.stringify(response.data.userInfo))
+            .then((res:any)=>{
+                console.log(res);
+                
+                var response=res.data as LoginUserInfo;
+                if(res.code===200){
+                    window.sessionStorage.setItem("token",response.token!)
+                    window.sessionStorage.setItem("user",JSON.stringify(response.userInfo))
                     window.location.href="/admin"
                 }
             })

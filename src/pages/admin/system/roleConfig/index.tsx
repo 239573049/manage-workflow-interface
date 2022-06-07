@@ -84,7 +84,7 @@ const UserInfoTab = [
     },
     {
         title: '账号状态',
-        dataIndex: 'statueName',
+        dataIndex: 'statusName',
     },
     {
         title: '手机号',
@@ -181,9 +181,9 @@ class RoleConfig extends React.Component<IProps, IState>{
             return;
         }
         RoleConfigApi.GetRoleUserInfoNotExit(pitch, addRoleUserInfo?.name ?? '', addRoleUserInfo?.pageNo ?? 1, addRoleUserInfo?.pageSize ?? 20)
-            .then(res => {
-                if (res.data.statusCode === 200) {
-                    var data = res.data.data;
+            .then((res:any) => {
+                if (res.code === 200) {
+                    var data = res.data;
                     addRoleUserInfo.data = data.data;
                     if (addRoleUserInfo.isVisible === false) {
                         addRoleUserInfo.isVisible = true;
@@ -201,11 +201,13 @@ class RoleConfig extends React.Component<IProps, IState>{
         RoleConfigApi.GetUserMenuList(this.state.data.name ?? "")
             .then((res) => {
                 var data = res.data
-                if (initial && data.data.length > 0) {
-                    this.updateRolePitch(data.data[0])
+                
+                if (initial && data.length > 0) {
+                    
+                    this.updateRolePitch(data[0])
                 }
                 this.setState({
-                    role_list: [...data.data]
+                    role_list: [...data]
                 })
 
             })
@@ -217,10 +219,10 @@ class RoleConfig extends React.Component<IProps, IState>{
         var { pitch, GetRoleUserInfo } = this.state;
         pitch = id === '' ? pitch : id;
         RoleConfigApi.GetRoleUserInfo(pitch, GetRoleUserInfo.pageNo, GetRoleUserInfo.pageSize)
-            .then(res => {
+            .then((res:any) => {
                 var data = res.data;
-                if (data.statusCode === 200) {
-                    var json = data.data as Paging<UserInfo>
+                if (res.code === 200) {
+                    var json = data as Paging<UserInfo>
                     GetRoleUserInfo.data = json.data;
                     GetRoleUserInfo.count = json.count;
                     this.setState({ GetRoleUserInfo })
@@ -383,7 +385,8 @@ class RoleConfig extends React.Component<IProps, IState>{
         var { pitch, menuTree } = this.state;
         RoleConfigApi.GetMenuTreeAll(id ?? pitch)
             .then(res => {
-                var data = res.data.data;
+                var data = res.data;
+                
                 menuTree.menuTreeData = [...data.item1];
                 menuTree.checkedKeys = [...data.item2];
                 this.setState({ menuTree })

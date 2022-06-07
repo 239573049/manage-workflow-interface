@@ -81,13 +81,13 @@ class Admin extends React.Component<IProps, IState> {
    */
   getMenu() {
     AdminApi.GetUserMenuList()
-      .then(res => {
-        var data = res.data as Response<any[]>
-        if (data.statusCode === 200) {
-          var menu = data.data[0];
+      .then((res:any) => {
+        var data = res.data as any[]
+        if (res.code === 200) {
+          var menu = data[0];
           this.add(menu.title, menu.component, menu.key)
           this.setState({
-            menu: this.getMenuNodes(data.data as never)
+            menu: this.getMenuNodes(data as never)
           })
         }
       })

@@ -3,6 +3,6 @@ const config={
 }
 if(process.env.NODE_ENV==='development')
 {
-    config.baseURL="https://localhost:8080/api"
+    config.baseURL="https://localhost:7019/api"
 }
 export default config;

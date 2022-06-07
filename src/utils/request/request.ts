@@ -17,7 +17,7 @@ instance.interceptors.request.use(
   (request) => {
     const token = window.sessionStorage.getItem('token') ;
     request.headers = {
-      Authorization:'Bearer '+ token!,
+      "Authorization":'Bearer '+ token!,
     };
     return request;
   },
@@ -37,7 +37,7 @@ instance.interceptors.response.use(
       default:
         break;
     }
-    return response;
+    return response.data;
   },
   (error) => {
     const response = error.response;
