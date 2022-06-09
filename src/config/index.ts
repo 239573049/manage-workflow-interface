@@ -1,5 +1,5 @@
 const config={
-    baseURL:"http://124.222.27.83:8081/api",
+    baseURL:"http://managementapi/api",
 }
 if(process.env.NODE_ENV==='development')
 {
