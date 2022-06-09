@@ -19,14 +19,14 @@ steps:
     commands:
       - npm config set registry https://registry.npm.taobao.org # 切换淘宝镜像
       - "npm i && npm run build"
-    
+
 volumes:
   - name: dockersock
     host:
       path: /var/run/docker.sock
   - name: node_modules
     host:
-      path: /root/node/manageweb/node_modules
+      path: /root/node/node_modules/manageweb
   - name: build
     host:
-      path: /root/www/manageweb
+      path: /root/nginx/www/manageweb
