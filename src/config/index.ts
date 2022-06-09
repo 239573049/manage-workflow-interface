@@ -1,5 +1,5 @@
 const config={
-    baseURL:"http://managementapi/api",
+    baseURL:"http://tokengo.top:8088/api",
 }
 if(process.env.NODE_ENV==='development')
 {
