@@ -3,7 +3,6 @@ import { Layout, Menu, Popover, message, Card, Avatar, Tabs } from 'antd';
 import { UserInfo } from '../../model/userInfo/userInfo';
 import './index.less'
 import AdminApi from '../../apis/admin/index'
-import { Response } from '../../model/request/Api'
 import LoginApi from '../../apis/login/index';
 import PANE from '../menu';
 import { BellOutlined } from '@ant-design/icons';
